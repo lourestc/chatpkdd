@@ -138,7 +138,7 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 def train_model(model, X_train, y_train, X_val, y_val):
 
 	epochs = 5
-	val_loss = {'loss': 1., 'epoch': 0}
+	val_loss = None
 	val_acc = 0
 	for e in range(0,epochs):
 		print('epochs', e)
@@ -156,7 +156,7 @@ def train_model(model, X_train, y_train, X_val, y_val):
 		print(model.layers[3].output.shape)
 
 
-		if hist.history['val_loss'][0] < val_loss['loss']:
+		if hist.history['val_loss'][0] < val_loss['loss'] or val_loss==None:
 			val_acc = hist.history['val_accuracy'][0]
 			val_loss = {'loss': hist.history['val_loss'][0], 'epoch': e}
 			model.save_weights('modelos/model_weights.h5', overwrite=True)

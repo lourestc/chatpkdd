@@ -156,7 +156,7 @@ def train_model(model, X_train, y_train, X_val, y_val):
 		print(model.layers[3].output.shape)
 
 
-		if hist.history['val_loss'][0] < val_loss['loss'] or val_loss==None:
+		if val_loss==None or hist.history['val_loss'][0] < val_loss['loss']:
 			val_acc = hist.history['val_accuracy'][0]
 			val_loss = {'loss': hist.history['val_loss'][0], 'epoch': e}
 			model.save_weights('modelos/model_weights.h5', overwrite=True)

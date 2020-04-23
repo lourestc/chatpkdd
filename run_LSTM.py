@@ -167,8 +167,20 @@ def train_model(model, X_train, y_train, X_val, y_val):
 
 def test_model(model, X_test, y_test):
 
-	predictions = np.argmax( model.predict(X_test), axis=1 )
-	
+	#predicted_classes = model.predict_classes(X_test)
+	#np.savetxt('predictions_classes/' + name_writer + "_predictions_classes.csv", predicted_classes, delimiter=",")
+
+	predicted_test = model.predict(X_test)
+	#np.savetxt('predictions_original/' + name_writer + "_predictions_original.csv", predicted_test, delimiter=",")
+
+	predictions = []
+	for i, predicted2 in enumerate(predicted_test):
+		if predicted2[0] >= 0.50:
+			predictions.append(1)
+		else:
+			predictions.append(0)
+
+	#print("iguais:", predicted_classes == predictions)
 	#np.savetxt('predictions/' + name_writer + "_predictions.csv", predictions, delimiter=",")
 	metrics = sklearn.metrics.precision_recall_fscore_support(y_true=np.asarray(test_data.subscribed), y_pred=predictions)
 

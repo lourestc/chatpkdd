@@ -138,7 +138,7 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 
 def train_model(model, X_train, y_train, X_val, y_val):
 
-	epochs = 5
+	epochs = 1
 	val_loss = None
 	val_acc = 0
 	for e in range(0,epochs):

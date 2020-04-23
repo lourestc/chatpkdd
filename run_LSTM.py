@@ -193,7 +193,8 @@ if __name__ == '__main__':
 	MAX_WORDS=400
 	EMBEDDING_DIM = 300
 
-	data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
+	#data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
+	data = read_data('timestamps/train (1)_withoutStopWords.csv')
 	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
 

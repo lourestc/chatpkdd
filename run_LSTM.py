@@ -182,23 +182,35 @@ if __name__ == '__main__':
 	MAX_WORDS=400
 	EMBEDDING_DIM = 300
 
+	print("Reading data...")
 	#data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
 	data = read_data(sys.argv[1])
 	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
 
+	print("Extracting features...")
 	extracting_features(train_data)
 	extracting_features(val_data)
 	extracting_features(test_data)
 	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
 
+	print("Treating text...")
 	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
 	X_train = run_tokenizer(tokenizer, train_data.concatenated_m, MAX_WORDS)
 	X_val = run_tokenizer(tokenizer, val_data.concatenated_m, MAX_WORDS)
 	X_test = run_tokenizer(tokenizer, test_data.concatenated_m, MAX_WORDS)
 
+	print("Creating embedding matrix...")
 	embedding_matrix = create_embedding_matrix(word_index, EMBEDDING_DIM)
 
+	print("Building model...")
 	model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
+	
+	print("Training model...")
 	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
+	
+	print("Testing...")
 	df_metrics = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
+	print(df_metrics)
+	
+	print("Done.")

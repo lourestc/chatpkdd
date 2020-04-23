@@ -206,7 +206,7 @@ if __name__ == '__main__':
 	extracting_features(test_data)
 	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
 
-	print("Treating text...")
+	print("Preprocessing text...")
 	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
 	X_train = run_tokenizer(tokenizer, train_data.concatenated_m, MAX_WORDS)
 	X_val = run_tokenizer(tokenizer, val_data.concatenated_m, MAX_WORDS)
@@ -221,7 +221,7 @@ if __name__ == '__main__':
 	print("Training model...")
 	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
 	
-	print("Testing...")
+	print("Evaluating...")
 	df_metrics = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
 	print(df_metrics)
 	

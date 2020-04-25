@@ -101,6 +101,42 @@ def create_embedding_matrix(word_index, EMBEDDING_DIM):
 
 	return embedding_matrix
 
+def build_model_RMSprop(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM):
+
+	sequence_length = X_train.shape[1]
+	print("sequence_length", sequence_length)
+	#filters = 150
+	#kernel_size = 3
+	drop = 0.5
+
+	print('Build model...')
+
+	text_input = keras.layers.Input(shape=(sequence_length,))
+	text_model = keras.layers.Embedding(len(word_index)+1,
+								EMBEDDING_DIM,
+								weights=[embedding_matrix],
+								input_length=sequence_length,
+								trainable=True)( text_input )
+	text_model = keras.layers.Dropout(0.5)( text_model )  # helps prevent overfitting
+	text_model = keras.layers.LSTM(100)( text_model )
+	text_model = keras.layers.Dropout(0.5)( text_model )
+
+	feature_input = keras.layers.Input(shape=(feat_train.shape[1],))
+
+	merged_model = keras.layers.concatenate([text_model, feature_input])
+	merged_model = keras.layers.Dense(1, activation='sigmoid')(merged_model)
+
+	model = keras.models.Model( inputs=[text_input,feature_input], outputs=merged_model )
+    opt = keras.optimizers.RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=0.0, clipnorm=0.5)
+    model.compile(loss='binary_crossentropy',#categoric_crossentropy
+                    optimizer=opt,
+                    metrics=['accuracy'])
+
+	img = keras.utils.vis_utils.plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+	model.summary()
+
+	return model
+
 def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM):
 
 	sequence_length = X_train.shape[1]
@@ -138,13 +174,13 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 
 def train_model(model, X_train, y_train, X_val, y_val):
 
-	epochs = 5
+	epochs = 1
 	val_loss = None
 	val_acc = 0
 	for e in range(0,epochs):
 		print('epochs', e)
 
-		hist = model.fit(X_train, y_train, validation_data=(X_val, y_val), batch_size=64, epochs=1)
+		hist = model.fit(X_train, y_train, validation_data=(X_val, y_val), batch_size=34, epochs=1)
 
 
 		print(model.layers[2].name)
@@ -216,7 +252,8 @@ if __name__ == '__main__':
 	embedding_matrix = create_embedding_matrix(word_index, EMBEDDING_DIM)
 
 	print("Building model...")
-	model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
+	#model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
+	model = build_model_RMSprop(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
 	
 	print("Training model...")
 	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)

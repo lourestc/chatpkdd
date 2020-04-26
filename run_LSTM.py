@@ -34,8 +34,8 @@ def data_fnames(folderpath='timestamps'):
 	
 def read_data(csv_filename):
 	df = pd.read_csv(csv_filename)
-	df['delta_ts'] = df['delta_ts'].apply(eval)
-	df['delta_ts'] = df['delta_ts'].apply(np.asarray)
+	df.loc[:,'delta_ts'] = df['delta_ts'].apply(eval)
+	df.loc[:,'delta_ts'] = df['delta_ts'].apply(np.asarray)
 	return df
 	
 def clean_text(text):

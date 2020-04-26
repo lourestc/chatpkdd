@@ -37,12 +37,6 @@ def convert_json_DataFrame(json_filename):
 		
 	return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts'], orient='index')
 
-
-def convert_delta_ts_array(dataframe):
-	dataframe.loc[:,'delta_ts'] = dataframe['delta_ts'].apply(eval)
-	dataframe.loc[:,'delta_ts'] = dataframe['delta_ts'].apply(np.asarray)
-	return dataframe
-
 def remove_stopwords(dataframe):
 	stoplist =  stopwords.words('english')
 	punc = set(punctuation)
@@ -79,7 +73,6 @@ def extracting_features(data):
 def prepare_data_from_json(json_filename):
 
 	dataframe = convert_json_DataFrame(json_filename)
-	convert_delta_ts_array(dataframe)
 	remove_stopwords(dataframe)
 	extracting_features(dataframe)
 	return dataframe

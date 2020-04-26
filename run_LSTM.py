@@ -223,16 +223,33 @@ def test_model(model, X_test, y_test):
 	df_metrics = pd.DataFrame(list(metrics), index=['Precision', 'Recall', "F-Score", "Support"])
 	#df.transpose().to_csv('metrics/' + 'result' + name_writer + '_metrics.csv', sep='\t', encoding='utf-8')
 	
-	return df_metrics
+	print(df_metrics)
+	print(klearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=predictions, target_names=target_names)
+	
+	return predictions
+
+def save_predictions( predictions, data, out_filename ):
+
+	out = pd.DataFrame(columns=['user', 'channel', 'subscribed'])
+	
+	for i,pred in enumerate(predictions):
+		out.loc[i,'user'] = data[i,'user']
+		out.loc[i,'channel'] = data[i,'channel']
+		out.loc[i,'subscribed'] = pred
+		
+	out.to_csv(out_filename)
 
 if __name__ == '__main__':
 
 	MAX_WORDS=400
 	EMBEDDING_DIM = 300
+	
+	in_filename = sys.argv[1]
+	out_filename = sys.argv[2]
 
 	print("Reading data...")
 	#data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
-	data = read_data(sys.argv[1])
+	data = read_data(in_filename)
 	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
 
@@ -259,7 +276,7 @@ if __name__ == '__main__':
 	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
 	
 	print("Evaluating...")
-	df_metrics = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
-	print(df_metrics)
+	predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
+	save_predictions( predictions, data, out_filename )
 	
 	print("Done.")

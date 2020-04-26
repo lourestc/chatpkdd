@@ -9,6 +9,8 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from string import punctuation
 
+import sys
+
 def convert_json_DataFrame(json_filename):
 	UserChannels = []
 	with open(json_filename, 'r') as f:

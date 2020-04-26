@@ -53,7 +53,7 @@ def extracting_features(data):
 	delta_ts = data['delta_ts'].apply(eval)
 	delta_ts = delta_ts.apply(np.asarray)
 	
-	data.loc[:,'length(delta_ts)'] = delta_ts.apply(lambda row: delta_ts.size, axis=1)
+	data.loc[:,'length(delta_ts)'] = delta_ts.apply(lambda row: row['delta_ts'].size, axis=1)
 	data.loc[:,'sum(delta_ts)'] = delta_ts.apply(lambda row: np.sum(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)
 	data.loc[:,'average(delta_ts)'] = delta_ts.apply(lambda row: np.mean(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)
 	data.loc[:,'std(delta_ts)'] = delta_ts.apply(lambda row: np.std(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)

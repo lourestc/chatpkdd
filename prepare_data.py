@@ -77,7 +77,7 @@ def extracting_features(data):
 def prepare_data_from_json(json_filename):
 
 	dataframe = convert_json_DataFrame(json_filename)
-	remove_stopwords(dataframe)
+	#remove_stopwords(dataframe)
 	extracting_features(dataframe)
 	return dataframe
 	

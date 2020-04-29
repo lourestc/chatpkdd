@@ -250,7 +250,10 @@ if __name__ == '__main__':
 	data = read_data(in_filename)
 	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
+	
+	print(data[0,'user'])
 
+	'''
 	print("Extracting features...")
 	extracting_features(train_data)
 	extracting_features(val_data)
@@ -278,3 +281,4 @@ if __name__ == '__main__':
 	save_predictions( predictions, test_data, out_filename )
 	
 	print("Done.")
+	'''

@@ -19,6 +19,8 @@ def read_ground_truth(csv_filename='train_truth.csv'):
 		csv_reader = csv.DictReader(f)
 		for line in csv_reader:
 			subscribed.setdefault( line['channel'], {} )[line['user']] = line['subscribed']
+	
+	return subscribed
 
 def convert_json_DataFrame(json_filename, ground_truth):
 	UserChannels = []

@@ -229,13 +229,12 @@ def test_model(model, X_test, y_test):
 
 def save_predictions( predictions, data, out_filename ):
 
-	out = pd.DataFrame(columns=['user', 'channel', 'subscribed'])
+	odict = {}
 	
 	for i,pred in enumerate(predictions):
-		out.loc[i,'user'] = data[i,'user']
-		out.loc[i,'channel'] = data[i,'channel']
-		out.loc[i,'subscribed'] = pred
+		odict[i] = [ data[i,'user'], data[i,'channel'], pred ]
 		
+	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
 	out.to_csv(out_filename)
 
 if __name__ == '__main__':

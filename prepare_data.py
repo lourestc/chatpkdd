@@ -59,7 +59,7 @@ def remove_stopwords(dataframe):
 			text_tokens = word_tokenize(msg)
 			tokens_without_sw = [word for word in text_tokens if not word in stoplist]
 			s = ''.join(w if set(w) <= punc else ' '+w+' ' for w in tokens_without_sw)
-			s = ' '.join(s.split)
+			s = ' '.join(s.split())
 			dataframe.loc[id, 'concatenated_m'] = s
 	return dataframe
 

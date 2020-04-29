@@ -91,7 +91,7 @@ def prepare_data_from_json(json_filename):
 
 	gt = read_ground_truth('../ChAT/train_truth.csv')
 	dataframe = convert_json_DataFrame(json_filename, gt)
-	#remove_stopwords(dataframe)
+	remove_stopwords(dataframe)
 	extracting_features(dataframe)
 	return dataframe
 	

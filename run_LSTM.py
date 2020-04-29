@@ -275,6 +275,6 @@ if __name__ == '__main__':
 	
 	print("Evaluating...")
 	predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
-	save_predictions( predictions, data, out_filename )
+	save_predictions( predictions, test_data, out_filename )
 	
 	print("Done.")

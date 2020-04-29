@@ -224,7 +224,7 @@ def test_model(model, X_test, y_test):
 	#df.transpose().to_csv('metrics/' + 'result' + name_writer + '_metrics.csv', sep='\t', encoding='utf-8')
 	
 	print(df_metrics)
-	print(sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=predictions, target_names=target_names))
+	print(sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=predictions))
 	return predictions
 
 def save_predictions( predictions, data, out_filename ):

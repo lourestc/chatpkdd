@@ -42,28 +42,6 @@ def clean_text(text):
 	tknzr = TweetTokenizer(reduce_len=True, preserve_case=False)
 	return [ ' '.join(tknzr.tokenize(str(m))) for m in text  ]
 
-def extracting_features(data):
-
-	data.loc[:,'length(delta_ts)'] = data.apply(lambda row: row['delta_ts'].size, axis=1)
-	data.loc[:,'sum(delta_ts)'] = data.apply(lambda row: np.sum(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)
-	data.loc[:,'average(delta_ts)'] = data.apply(lambda row: np.mean(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)
-	data.loc[:,'std(delta_ts)'] = data.apply(lambda row: np.std(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)
-	data.loc[:,'min(delta_ts)'] = data.apply(lambda row: np.amin(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)
-	data.loc[:,'max(delta_ts)'] = data.apply(lambda row: np.amax(row['delta_ts']) if row['delta_ts'].size<=1 else np.amax(np.delete(row['delta_ts'],0)), axis=1)	  
-	data.loc[:,'length(concatenated_m)'] = data.apply(lambda row: len(row['concatenated_m'].split()), axis=1)
-
-	grouped_by_user = data.groupby('user')
-	avg_msgsize_per_user = grouped_by_user['length(concatenated_m)'].mean()
-	channels_per_user = grouped_by_user['length(delta_ts)'].count()
-	data.loc[:,'average(SizeMsgChannels_User)'] = data.apply(lambda row: avg_msgsize_per_user.loc[row['user']], axis=1)
-	data.loc[:,'count(Channels_User)'] = data.apply(lambda row: channels_per_user.loc[row['user']], axis=1)
-
-	grouped_by_channel = data.groupby('channel')
-	avg_msgsize_per_channel = grouped_by_channel['length(concatenated_m)'].mean()
-	users_per_channel = grouped_by_channel['length(delta_ts)'].count()
-	data.loc[:,'average(SizeMsgUsers_Channel)'] = data.apply(lambda row: avg_msgsize_per_channel.loc[row['channel']], axis=1)
-	data.loc[:,'count(Users_Channel)'] = data.apply(lambda row: users_per_channel.loc[row['channel']], axis=1)
-
 def train_tokenizer(text):
 
 	NUM_WORDS=90000000000 # the maximum number of words to keep, based on word frequency. Only the most common num_words-1 words will be kept.
@@ -224,7 +202,6 @@ def test_model(model, X_test, y_test):
 	#df.transpose().to_csv('metrics/' + 'result' + name_writer + '_metrics.csv', sep='\t', encoding='utf-8')
 	
 	print(df_metrics)
-	print(sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=predictions))
 	return predictions
 
 def save_predictions( predictions, data, out_filename ):
@@ -251,10 +228,6 @@ if __name__ == '__main__':
 	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
 
-	'''print("Extracting features...")
-	extracting_features(train_data)
-	extracting_features(val_data)
-	extracting_features(test_data)'''
 	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
 
 	print("Preprocessing text...")
@@ -266,7 +239,7 @@ if __name__ == '__main__':
 	print("Creating embedding matrix...")
 	embedding_matrix = create_embedding_matrix(word_index, EMBEDDING_DIM)
 
-	print("Building model...")
+	print("Building RMSprop model...")
 	#model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
 	model = build_model_RMSprop(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
 	
@@ -274,7 +247,29 @@ if __name__ == '__main__':
 	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
 	
 	print("Evaluating...")
+	RMSprop_predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
+	save_predictions( RMSprop_predictions, data, out_filename )
+	
+	print("Creating embedding matrix...")
+	embedding_matrix = create_embedding_matrix(word_index, EMBEDDING_DIM)
+
+	print("Building RMSprop model...")
+	#model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
+	model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
+	
+	print("Training model...")
+	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
+	
+	print("Evaluating...")
 	predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
 	save_predictions( predictions, data, out_filename )
+	
+	print("===============================================================")
+	print("REPORT:")
+	print("===============================================================")
+	print( sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=RMSprop_predictions) )
+	print("===============================================================")
+	print( sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=predictions) )
+	print("===============================================================")
 	
 	print("Done.")

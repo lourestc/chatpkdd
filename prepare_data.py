@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import csv
 import numpy as np
 import nltk
 nltk.download('stopwords')
@@ -11,7 +12,15 @@ from string import punctuation
 
 import sys
 
-def convert_json_DataFrame(json_filename):
+def read_ground_truth(csv_filename='train_truth.csv'):
+
+	subscribed = {}
+	with open(csv_filename) as f:
+		csv_reader = csv.DictReader(f)
+		for line in csv_reader:
+			subscribed.setdefault( line['channel'], {} )[line['user']] = line['subscribed']
+
+def convert_json_DataFrame(json_filename, ground_truth):
 	UserChannels = []
 	with open(json_filename, 'r') as f:
 		for line in f:
@@ -30,12 +39,14 @@ def convert_json_DataFrame(json_filename):
 		concatenatedm = ' '.join([ m['m'] for m in messages ])
 		
 		ts_list = [ m['t'] for m in messages ]
-		delta_ts = [0]+[ ts2-ts1 for ts1,ts2 in zip(ts_list[:-1],ts_list[1:]) ]		
+		delta_ts = [0]+[ ts2-ts1 for ts1,ts2 in zip(ts_list[:-1],ts_list[1:]) ]
+		
+		subscribed = ground_truth[channel][user]
 	
-		final_results[cont].extend([channel, user, concatenatedm, json.dumps(delta_ts)])		
+		final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts), subscribed ])		
 		cont += 1
 		
-	return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts'], orient='index')
+	return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed'], orient='index')
 
 def remove_stopwords(dataframe):
 	stoplist =  stopwords.words('english')
@@ -76,7 +87,8 @@ def extracting_features(data):
 
 def prepare_data_from_json(json_filename):
 
-	dataframe = convert_json_DataFrame(json_filename)
+	gt = read_ground_truth('../ChAT/train_truth.csv')
+	dataframe = convert_json_DataFrame(json_filename, gt)
 	#remove_stopwords(dataframe)
 	extracting_features(dataframe)
 	return dataframe

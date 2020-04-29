@@ -232,7 +232,7 @@ def save_predictions( predictions, data, out_filename ):
 	odict = {}
 	
 	for i,pred in enumerate(predictions):
-		odict[i] = [ data[i,'user'], data[i,'channel'], pred ]
+		odict[i] = [ data.loc[i,'user'], data.loc[i,'channel'], pred ]
 		
 	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
 	out.to_csv(out_filename)
@@ -251,7 +251,7 @@ if __name__ == '__main__':
 	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
 	
-	print(data[1,'user'])
+	print(data.loc[1,'user'])
 
 	'''
 	print("Extracting features...")

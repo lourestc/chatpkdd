@@ -49,6 +49,7 @@ def convert_json_DataFrame(json_filename, ground_truth):
 		cont += 1
 		
 	return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed'], orient='index')
+	pd.DataFrame.from_dict(dic, columns=['concatenated_m'], orient='index')
 
 def remove_stopwords(dataframe):
 	stoplist =  stopwords.words('english')
@@ -57,7 +58,8 @@ def remove_stopwords(dataframe):
 		if str(msg) != "nan":
 			text_tokens = word_tokenize(msg)
 			tokens_without_sw = [word for word in text_tokens if not word in stoplist]
-			s = ''.join(w if set(w) <= punc else ' '+w for w in tokens_without_sw).lstrip()
+			s = ''.join(w if set(w) <= punc else ' '+w+' ' for w in tokens_without_sw)
+			s = ' '.join(s.split)
 			dataframe.loc[id, 'concatenated_m'] = s
 	return dataframe
 

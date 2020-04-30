@@ -79,43 +79,7 @@ def create_embedding_matrix(word_index, EMBEDDING_DIM):
 
 	return embedding_matrix
 
-def build_model_RMSprop(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM):
-
-	sequence_length = X_train.shape[1]
-	print("sequence_length", sequence_length)
-	#filters = 150
-	#kernel_size = 3
-	drop = 0.5
-
-	print('Build model...')
-
-	text_input = keras.layers.Input(shape=(sequence_length,))
-	text_model = keras.layers.Embedding(len(word_index)+1,
-								EMBEDDING_DIM,
-								weights=[embedding_matrix],
-								input_length=sequence_length,
-								trainable=True)( text_input )
-	text_model = keras.layers.Dropout(0.5)( text_model )  # helps prevent overfitting
-	text_model = keras.layers.LSTM(100)( text_model )
-	text_model = keras.layers.Dropout(0.5)( text_model )
-
-	feature_input = keras.layers.Input(shape=(feat_train.shape[1],))
-
-	merged_model = keras.layers.concatenate([text_model, feature_input])
-	merged_model = keras.layers.Dense(1, activation='sigmoid')(merged_model)
-
-	model = keras.models.Model( inputs=[text_input,feature_input], outputs=merged_model )
-	opt = keras.optimizers.RMSprop(lr=0.0001, rho=0.9, epsilon=1e-08, decay=0.0, clipnorm=0.5)
-	model.compile(loss='binary_crossentropy',#categoric_crossentropy
-							optimizer=opt,
-							metrics=['accuracy'])
-
-	img = keras.utils.vis_utils.plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
-	model.summary()
-
-	return model
-
-def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM):
+def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM, OPT, LR):
 
 	sequence_length = X_train.shape[1]
 	print("sequence_length", sequence_length)
@@ -142,7 +106,7 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 	
 	model = keras.models.Model( inputs=[text_input,feature_input], outputs=merged_model )
 	model.compile(loss='binary_crossentropy',#categoric_crossentropy
-					optimizer='adam',
+					optimizer=OPT(lr=LR, rho=0.9, epsilon=1e-08, decay=0.0, clipnorm=0.5),
 					metrics=['accuracy'])
 					
 	img = keras.utils.vis_utils.plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
@@ -214,7 +178,68 @@ def save_predictions( predictions, data, out_filename ):
 	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
 	out.to_csv(out_filename)
 
+def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
+                          tokenizer, train_data, val_data, test_data, word_index, outpath):
+    for max_w in max_words:
+        for embedding_d in embedding_dims:
+		
+			print("Preprocessing text... max_w="+str(max_w))
+    	    X_train = run_tokenizer(tokenizer, train_data.concatenated_m, max_w)
+    	    X_val = run_tokenizer(tokenizer, val_data.concatenated_m, max_w)
+    	    X_test = run_tokenizer(tokenizer, test_data.concatenated_m, max_w)
+
+    	    print("Creating embedding matrix... embedding_d="+str(embedding_d))
+    	    embedding_matrix = create_embedding_matrix(word_index, embedding_d)
+
+            for opt in optimizers:
+                for lr in learning_rates:
+				
+					print("Optmizer model... opt="+str(opt)+"; lr="+str(lr))
+    	            model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)
+					
+    	            print("Training model...")
+    	            train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
+
+    	            print(f"Evaluating with {max_w} max_words, {embedding_d} dimension of embedding, {opt} optimizer and {lr} learning rate")
+    	            predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
+					
+					outfile = outpath+'/preds-maxw_'+str(max_w)+'-edim_'+str(embedding_d)+'-opt_'+str(opt)+'-lr_'+str(lr)+'.csv'
+    	            save_predictions( predictions, data, outfile )
+
 if __name__ == '__main__':
+
+    # hyperparameters
+	MAX_WORDS=[200, 400, 600]
+	EMBEDDING_DIM = [150, 300, 450]
+    optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
+    learning_rates = [0.001, 0.0001]
+
+	in_filename = sys.argv[1]
+	outpath = sys.argv[2]
+
+	print("Reading data...")
+	#data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
+	data = read_data(in_filename)
+	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
+	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
+
+	print("Extracting features...")
+	extracting_features(train_data)
+	extracting_features(val_data)
+	extracting_features(test_data)
+	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
+
+	print("Training tokenizer...")
+	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
+	
+    hyperparemeter_search(
+        EMBEDDING_DIM, MAX_WORDS, learning_rates, optimizers, tokenizer, train_data,
+        val_data, test_data, word_index, outpath
+    )
+	
+	print("Done.")
+
+def oldmain():
 
 	MAX_WORDS=400
 	EMBEDDING_DIM = 300
@@ -229,7 +254,7 @@ if __name__ == '__main__':
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
 
 	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
-
+	
 	print("Preprocessing text...")
 	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
 	X_train = run_tokenizer(tokenizer, train_data.concatenated_m, MAX_WORDS)

@@ -232,7 +232,7 @@ if __name__ == '__main__':
 	print("Training tokenizer...")
 	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
 	
-	 hyperparemeter_search(
+	hyperparemeter_search(
 		  EMBEDDING_DIM, MAX_WORDS, learning_rates, optimizers, tokenizer, train_data,
 		  val_data, test_data, word_index, outpath
 	 )

@@ -208,11 +208,11 @@ def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
 
 if __name__ == '__main__':
 
-	 # hyperparameters
+	# hyperparameters
 	MAX_WORDS=[200, 400, 600]
 	EMBEDDING_DIM = [150, 300, 450]
-	 optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
-	 learning_rates = [0.001, 0.0001]
+	optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
+	learning_rates = [0.001, 0.0001]
 
 	in_filename = sys.argv[1]
 	outpath = sys.argv[2]

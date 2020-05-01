@@ -184,27 +184,27 @@ def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
 		for embedding_d in embedding_dims:
 		
 			print("Preprocessing text... max_w="+str(max_w))
-	 		X_train = run_tokenizer(tokenizer, train_data.concatenated_m, max_w)
-	 		X_val = run_tokenizer(tokenizer, val_data.concatenated_m, max_w)
-	 		X_test = run_tokenizer(tokenizer, test_data.concatenated_m, max_w)
+			X_train = run_tokenizer(tokenizer, train_data.concatenated_m, max_w)
+			X_val = run_tokenizer(tokenizer, val_data.concatenated_m, max_w)
+			X_test = run_tokenizer(tokenizer, test_data.concatenated_m, max_w)
 
-	 		print("Creating embedding matrix... embedding_d="+str(embedding_d))
-	 		embedding_matrix = create_embedding_matrix(word_index, embedding_d)
-
-				for opt in optimizers:
-					for lr in learning_rates:
+			print("Creating embedding matrix... embedding_d="+str(embedding_d))
+			embedding_matrix = create_embedding_matrix(word_index, embedding_d)
+			
+			for opt in optimizers:
+				for lr in learning_rates:
 				
 					print("Optmizer model... opt="+str(opt)+"; lr="+str(lr))
-	 					model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)
+					model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)
 					
-	 					print("Training model...")
-	 					train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
-
-	 					print(f"Evaluating with {max_w} max_words, {embedding_d} dimension of embedding, {opt} optimizer and {lr} learning rate")
-	 					predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
+					print("Training model...")
+					train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
+					
+					print(f"Evaluating with {max_w} max_words, {embedding_d} dimension of embedding, {opt} optimizer and {lr} learning rate")
+					predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
 					
 					outfile = outpath+'/preds-maxw_'+str(max_w)+'-edim_'+str(embedding_d)+'-opt_'+str(opt)+'-lr_'+str(lr)+'.csv'
-	 					save_predictions( predictions, data, outfile )
+					save_predictions( predictions, data, outfile )
 
 if __name__ == '__main__':
 

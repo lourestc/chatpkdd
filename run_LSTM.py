@@ -138,8 +138,8 @@ def train_model(model, X_train, y_train, X_val, y_val):
 		if val_loss==None or hist.history['val_loss'][0] < val_loss['loss']:
 			val_acc = hist.history['val_accuracy'][0]
 			val_loss = {'loss': hist.history['val_loss'][0], 'epoch': e}
-			model.save_weights('modelos/model_weights.h5', overwrite=True)
-			print('epochs_save', e)
+			#model.save_weights('modelos/model_weights.h5', overwrite=True)
+			#print('epochs_save', e)
 	#callbacks = [EarlyStopping(monitor='val_loss')]
 	#hist = model.fit(X_train, y_train, batch_size=50, epochs=1, validation_split=0.2, callbacks=callbacks)
 

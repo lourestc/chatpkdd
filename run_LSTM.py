@@ -106,7 +106,7 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 	
 	model = keras.models.Model( inputs=[text_input,feature_input], outputs=merged_model )
 	model.compile(loss='binary_crossentropy',#categoric_crossentropy
-					optimizer=OPT(lr=LR, rho=0.9, epsilon=1e-08, decay=0.0, clipnorm=0.5),
+					optimizer=OPT(lr=LR), #, rho=0.9, epsilon=1e-08, decay=0.0, clipnorm=0.5
 					metrics=['accuracy'])
 					
 	img = keras.utils.vis_utils.plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)

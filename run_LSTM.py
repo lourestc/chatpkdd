@@ -222,11 +222,7 @@ if __name__ == '__main__':
 	data = read_data(in_filename)
 	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
 	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
-
-	print("Extracting features...")
-	extracting_features(train_data)
-	extracting_features(val_data)
-	extracting_features(test_data)
+	
 	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
 
 	print("Training tokenizer...")

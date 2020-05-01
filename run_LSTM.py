@@ -178,21 +178,21 @@ def save_predictions( predictions, data, out_filename ):
 	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
 	out.to_csv(out_filename)
 
-def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
-								  tokenizer, train_data, val_data, test_data, word_index, outpath):
-	 for max_w in max_words:
-		  for embedding_d in embedding_dims:
+def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers, tokenizer, train_data, val_data, test_data, word_index, outpath):
+	
+	for max_w in max_words:
+		for embedding_d in embedding_dims:
 		
 			print("Preprocessing text... max_w="+str(max_w))
-	 		 X_train = run_tokenizer(tokenizer, train_data.concatenated_m, max_w)
-	 		 X_val = run_tokenizer(tokenizer, val_data.concatenated_m, max_w)
-	 		 X_test = run_tokenizer(tokenizer, test_data.concatenated_m, max_w)
+	 		X_train = run_tokenizer(tokenizer, train_data.concatenated_m, max_w)
+	 		X_val = run_tokenizer(tokenizer, val_data.concatenated_m, max_w)
+	 		X_test = run_tokenizer(tokenizer, test_data.concatenated_m, max_w)
 
-	 		 print("Creating embedding matrix... embedding_d="+str(embedding_d))
-	 		 embedding_matrix = create_embedding_matrix(word_index, embedding_d)
+	 		print("Creating embedding matrix... embedding_d="+str(embedding_d))
+	 		embedding_matrix = create_embedding_matrix(word_index, embedding_d)
 
 				for opt in optimizers:
-					 for lr in learning_rates:
+					for lr in learning_rates:
 				
 					print("Optmizer model... opt="+str(opt)+"; lr="+str(lr))
 	 					model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)

@@ -209,8 +209,8 @@ def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
 if __name__ == '__main__':
 
 	# hyperparameters
-	MAX_WORDS=[200, 400, 600]
-	EMBEDDING_DIM = [150, 300, 450]
+	MAX_WORDS=[300, 400, 500]
+	EMBEDDING_DIM = [100, 200, 300]
 	optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
 	learning_rates = [0.001, 0.0001]
 

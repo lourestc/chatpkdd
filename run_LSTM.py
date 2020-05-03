@@ -46,7 +46,7 @@ def train_tokenizer(text):
 
 	NUM_WORDS=90000000000 # the maximum number of words to keep, based on word frequency. Only the most common num_words-1 words will be kept.
 	cleaned_m = clean_text(text)
-	tokenizer = Tokenizer(filters='\t\n', lower=True)
+	tokenizer = Tokenizer(filters='\t\n', lower=True, oov_token = True)
 	tokenizer.fit_on_texts(cleaned_m) #create a array of words with indices
 	
 	word_index = tokenizer.word_index
@@ -114,9 +114,8 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 					
 	return model
 
-def train_model(model, X_train, y_train, X_val, y_val):
+def train_model(model, X_train, y_train, X_val, y_val, epochs, samemodel=False):
 
-	epochs = 10
 	val_loss = None
 	val_acc = 0
 	for e in range(0,epochs):
@@ -138,8 +137,9 @@ def train_model(model, X_train, y_train, X_val, y_val):
 		if val_loss==None or hist.history['val_loss'][0] < val_loss['loss']:
 			val_acc = hist.history['val_accuracy'][0]
 			val_loss = {'loss': hist.history['val_loss'][0], 'epoch': e}
-			#model.save_weights('modelos/model_weights.h5', overwrite=True)
-			#print('epochs_save', e)
+			if savemodel:
+				model.save_weights('modelos/model_weights.h5', overwrite=True)
+				print('epochs_save', e)
 	#callbacks = [EarlyStopping(monitor='val_loss')]
 	#hist = model.fit(X_train, y_train, batch_size=50, epochs=1, validation_split=0.2, callbacks=callbacks)
 
@@ -178,7 +178,22 @@ def save_predictions( predictions, data, out_filename ):
 	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
 	out.to_csv(out_filename)
 
-def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers, tokenizer, train_data, val_data, test_data, word_index, outpath):
+def hyperparemeter_search(inpath, outpath, feature_list):
+	
+	# hyperparameters
+	max_words = [300, 400, 500]
+	embedding_dims = [100, 200, 300]
+	optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
+	learning_rates = [0.001, 0.0001]
+
+	print("Reading data...")
+	#data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
+	data = read_data(data_fnames(inpath)[0])
+	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
+	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
+
+	print("Training tokenizer...")
+	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
 	
 	for max_w in max_words:
 		for embedding_d in embedding_dims:
@@ -198,7 +213,7 @@ def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
 					model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)
 					
 					print("Training model...")
-					train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
+					train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed, epochs=1)
 					
 					print(f"Evaluating with {max_w} max_words, {embedding_d} dimension of embedding, {opt.__name__} optimizer and {lr} learning rate")
 					predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
@@ -206,36 +221,67 @@ def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
 					outfile = outpath+'/preds-maxw_'+str(max_w)+'-edim_'+str(embedding_d)+'-opt_'+str(opt.__name__)+'-lr_'+str(lr)+'.csv'
 					save_predictions( predictions, data, outfile )
 
-if __name__ == '__main__':
+def train_all_files():
 
-	# hyperparameters
-	# MAX_WORDS=[300, 400, 500]
-	# EMBEDDING_DIM = [100, 200, 300]
-	# optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
-	# learning_rates = [0.001, 0.0001]
-	MAX_WORDS=[300]
-	EMBEDDING_DIM = [300]
-	optimizers = [keras.optimizers.Adagrad]
-	learning_rates = [0.001]
-
-	in_filename = sys.argv[1]
-	outpath = sys.argv[2]
-
-	print("Reading data...")
-	#data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
-	data = read_data(in_filename)
-	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
-	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
+	max_w = 300
+	embedding_d = 300
+	opt = keras.optimizers.Adagrad
+	lr = 0.001
 	
-	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
-
+	print("Reading data...")
+	train_data = read_data(data_fnames(inpath)[0])
+	
 	print("Training tokenizer...")
 	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
+	X_train = run_tokenizer(tokenizer, train_data.concatenated_m, max_w)
 	
-	hyperparemeter_search(
-		  EMBEDDING_DIM, MAX_WORDS, learning_rates, optimizers,
-		  tokenizer, train_data, val_data, test_data, word_index, outpath
-	 )
+	print("Creating embedding matrix... embedding_d="+str(embedding_d))
+	embedding_matrix = create_embedding_matrix(word_index, embedding_d)
+	
+	print("Optmizer model... opt="+str(opt.__name__)+"; lr="+str(lr))
+	model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)
+	
+	for in_f in data_fnames(inpath):
+	
+		print("===============================================")
+		print("FILE:", in_f)
+	
+		print("Reading data...")
+		data = read_data(in_f)
+		
+		for train_kf, val_kf in sklearn.model_selection.KFold(n_splits = 5, shuffle = True, random_state = 1).split(data):
+		
+			train_data = data.iloc[train_kf]
+			val_data = data.iloc[val_kf]
+			
+			print("Preprocessing text... max_w="+str(max_w))
+			X_train = run_tokenizer(tokenizer, train_data.concatenated_m, max_w)
+			X_val = run_tokenizer(tokenizer, val_data.concatenated_m, max_w)
+
+			print("Creating embedding matrix... embedding_d="+str(embedding_d))
+			embedding_matrix = create_embedding_matrix(word_index, embedding_d)
+			
+			print("Optmizer model... opt="+str(opt.__name__)+"; lr="+str(lr))
+			model.load_weights('modelos/model_weights.h5')
+			
+			print("Training model...")
+			train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed, epochs=10, savemodel=True)
+
+if __name__ == '__main__':
+	
+	mode = sys.argv[1]
+	inpath = sys.argv[2]
+	outpath = sys.argv[3]
+	
+	feature_list = [ 'sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)' ]
+	
+	if mode == 'hsearch':
+		hyperparemeter_search( inpath, outpath, feature_list )
+	elif mode == 'train':
+		train_all_files( inpath, outpath, feature_list )
+	else:
+		print("ERROR: Unkown execution mode.")
+		sys.exit(1)
 	
 	print("Done.")
 

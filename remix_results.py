@@ -12,10 +12,10 @@ if __name__ == '__main__':
 	
 	for fname in fnames:
 		df_preds = pd.read_csv(fname)
-		pd.merge( df_gt, df_preds, on=['channel','user'], suffixes=['',fname.stem] )
+		df_gt = pd.merge( df_gt, df_preds, on=['channel','user'], suffixes=['',fname.stem] )
 		
 	scores = {}
 	for col in df_gt.columns[3:]:	
-			scores[col] = [] + sklearn.metrics.precision_recall_fscore_support( y_true=df_gt['subscribed'], y_pred=df_gt[col] )
+			scores[col] = sklearn.metrics.precision_recall_fscore_support( y_true=df_gt['subscribed'], y_pred=df_gt[col] )
 	df_scores = pd.DataFrame.from_dict( scores, columns=['precision','recall','fscore','support'], orient='index' )
 	df_scores.to_csv( 'result_scores.csv', index_label='run' )

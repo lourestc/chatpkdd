@@ -18,7 +18,7 @@ if __name__ == '__main__':
 		for fname in fnames:
 			df_preds = pd.read_csv(fname)
 			df_gt = pd.merge( df_gt, df_preds, on=['channel','user'], suffixes=['',fname.stem] )
-		df_gt.to_csv( merged_fname, index_label='run' )
+		df_gt.to_csv( merged_f, index_label='run' )
 	
 	scores = {}
 	for col in df_gt.columns[3:]:	

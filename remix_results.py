@@ -12,12 +12,12 @@ if __name__ == '__main__':
 	merged_f = Path('merged_results.csv')
 	
 	if merged_f.is_file():
-		df_gt = pd.read_csv(merged_f)
+		df_gt = pd.read_csv(merged_f, index=False)
 	else:
-		df_gt = pd.read_csv('../ChAT/train_truth.csv')
+		df_gt = pd.read_csv('../ChAT/train_truth.csv', index=False)
 		for fname in fnames:
 			df_preds = pd.read_csv(fname)
-			df_gt = pd.merge( df_gt, df_preds, on=['channel','user'], suffixes=['',fname.stem] )
+			df_gt = pd.merge( df_gt, df_preds, on=['channel','user'], suffixes=['',fname.stem+'::'] )
 		df_gt.to_csv( merged_f, index_label='run' )
 	
 	scores = {}

@@ -221,7 +221,7 @@ def hyperparemeter_search(inpath, outpath, feature_list):
 					outfile = outpath+'/preds-maxw_'+str(max_w)+'-edim_'+str(embedding_d)+'-opt_'+str(opt.__name__)+'-lr_'+str(lr)+'.csv'
 					save_predictions( predictions, data, outfile )
 
-def train_all_files():
+def train_all_files( inpath, outpath, feature_list ):
 
 	max_w = 300
 	embedding_d = 300

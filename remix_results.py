@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 import sklearn
 
@@ -8,13 +9,17 @@ if __name__ == '__main__':
 	analisys = {}
 	
 	fnames = data_fnames('predictions')
+	merged_f = Path('merged_results.csv')
 	
-	df_gt = pd.read_csv('../ChAT/train_truth.csv')
+	if merged_f.is_file():
+		df_gt = pd.read_csv(merged_f)
+	else:
+		df_gt = pd.read_csv('../ChAT/train_truth.csv')
+		for fname in fnames:
+			df_preds = pd.read_csv(fname)
+			df_gt = pd.merge( df_gt, df_preds, on=['channel','user'], suffixes=['',fname.stem] )
+		df_gt.to_csv( merged_fname, index_label='run' )
 	
-	for fname in fnames:
-		df_preds = pd.read_csv(fname)
-		df_gt = pd.merge( df_gt, df_preds, on=['channel','user'], suffixes=['',fname.stem] )
-		
 	scores = {}
 	for col in df_gt.columns[3:]:	
 			scores[col] = sklearn.metrics.precision_recall_fscore_support( y_true=df_gt['subscribed'], y_pred=df_gt[col] )

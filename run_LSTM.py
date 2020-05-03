@@ -116,7 +116,7 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 
 def train_model(model, X_train, y_train, X_val, y_val):
 
-	epochs = 1
+	epochs = 10
 	val_loss = None
 	val_acc = 0
 	for e in range(0,epochs):
@@ -209,10 +209,14 @@ def hyperparemeter_search(embedding_dims, max_words, learning_rates, optimizers,
 if __name__ == '__main__':
 
 	# hyperparameters
-	MAX_WORDS=[300, 400, 500]
-	EMBEDDING_DIM = [100, 200, 300]
-	optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
-	learning_rates = [0.001, 0.0001]
+	# MAX_WORDS=[300, 400, 500]
+	# EMBEDDING_DIM = [100, 200, 300]
+	# optimizers = [keras.optimizers.RMSprop, keras.optimizers.Adam, keras.optimizers.Adagrad]
+	# learning_rates = [0.001, 0.0001]
+	MAX_WORDS=[300]
+	EMBEDDING_DIM = [300]
+	optimizers = [keras.optimizers.Adagrad]
+	learning_rates = [0.001]
 
 	in_filename = sys.argv[1]
 	outpath = sys.argv[2]
@@ -229,8 +233,8 @@ if __name__ == '__main__':
 	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
 	
 	hyperparemeter_search(
-		  EMBEDDING_DIM, MAX_WORDS, learning_rates, optimizers, tokenizer, train_data,
-		  val_data, test_data, word_index, outpath
+		  EMBEDDING_DIM, MAX_WORDS, learning_rates, optimizers,
+		  tokenizer, train_data, val_data, test_data, word_index, outpath
 	 )
 	
 	print("Done.")
@@ -271,24 +275,8 @@ def oldmain():
 	RMSprop_predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
 	save_predictions( RMSprop_predictions, data, out_filename )
 	
-	print("Creating embedding matrix...")
-	embedding_matrix = create_embedding_matrix(word_index, EMBEDDING_DIM)
-
-	print("Building RMSprop model...")
-	#model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
-	model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
-	
-	print("Training model...")
-	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
-	
-	print("Evaluating...")
-	predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
-	save_predictions( predictions, data, out_filename )
-	
 	print("===============================================================")
 	print("REPORT:")
-	print("===============================================================")
-	print( sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=RMSprop_predictions) )
 	print("===============================================================")
 	print( sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=predictions) )
 	print("===============================================================")

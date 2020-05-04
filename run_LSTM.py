@@ -112,7 +112,7 @@ def build_model(X_train, feat_train, word_index, embedding_matrix, EMBEDDING_DIM
 					
 	return model
 
-def train_model(model, X_train, y_train, X_val, y_val, epochs, samemodel):
+def train_model(model, X_train, y_train, X_val, y_val, epochs, savemodel=False):
 
 	val_loss = None
 	val_acc = 0
@@ -211,7 +211,7 @@ def hyperparemeter_search(inpath, outpath, feature_list):
 					model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)
 					
 					print("Training model...")
-					train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed, epochs=1, savemodel=False)
+					train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed, epochs=1)
 					
 					print(f"Evaluating with {max_w} max_words, {embedding_d} dimension of embedding, {opt.__name__} optimizer and {lr} learning rate")
 					predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)

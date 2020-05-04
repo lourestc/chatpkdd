@@ -28,10 +28,8 @@ import keras
 #from keras.regularizers import l2
 #from keras.utils.vis_utils import plot_model
 
-def data_fnames(folderpath='timestamps'):
-	train_path = Path(folderpath)
-	return [ fname for fname in train_path.glob('*') ]
-	
+from prepare_data import *
+
 def read_data(csv_filename):
 	df = pd.read_csv(csv_filename)
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(eval)

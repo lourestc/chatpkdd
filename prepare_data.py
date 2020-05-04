@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 import json
 import csv
@@ -11,6 +12,10 @@ from nltk.tokenize import word_tokenize
 from string import punctuation
 
 import sys
+
+def data_fnames(folderpath='timestamps'):
+	train_path = Path(folderpath)
+	return [ fname for fname in train_path.glob('*') ]
 
 def read_ground_truth(csv_filename='train_truth.csv'):
 
@@ -89,18 +94,35 @@ def extracting_features(data):
 	data.loc[:,'average(SizeMsgUsers_Channel)'] = data.apply(lambda row: avg_msgsize_per_channel.loc[row['channel']], axis=1)
 	data.loc[:,'count(Users_Channel)'] = data.apply(lambda row: users_per_channel.loc[row['channel']], axis=1)
 
-def prepare_data_from_json(json_filename):
+def prepare_data_from_json(json_filename,gt):
 
-	gt = read_ground_truth('../ChAT/train_truth.csv')
+	print("Converting JSON to DataFrame... file:", json_filename)
 	dataframe = convert_json_DataFrame(json_filename, gt)
+	
+	print("Removing stopwords...")
 	remove_stopwords(dataframe)
+	
+	print("Extracting features...")
 	extracting_features(dataframe)
+	
 	return dataframe
 	
 if __name__ == '__main__':
 
-	json_filename = sys.argv[1]
-	csv_filename = sys.argv[2]
+	mode = sys.argv[1]
+	inpath = sys.argv[2]
+	outpath = sys.argv[3]
 	
-	df = prepare_data_from_json(json_filename)
-	df.to_csv(csv_filename)
+	gt = read_ground_truth('../ChAT/train_truth.csv')
+	
+	if mode == 'first':
+		infile = data_fnames(inpath)[0]
+		df = prepare_data_from_json(infile,gt)
+		df.to_csv(outpath+'/'+infile.stem+'.csv')
+	elif mode == 'all':
+		for infile in data_fnames(inpath):
+			df = prepare_data_from_json(infile,gt)
+			df.to_csv(outpath+'/'+infile.stem+'.csv')
+	else:
+		print("ERROR: invalid mode.")
+		sys.exit(1)

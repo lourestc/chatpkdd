@@ -238,6 +238,7 @@ def train_all_files( inpath, outpath, feature_list ):
 	
 	print("Optmizer model... opt="+str(opt.__name__)+"; lr="+str(lr))
 	model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, embedding_d, opt, lr)
+	model.save_weights('modelos/model_weights.h5', overwrite=True)
 	
 	for in_f in data_fnames(inpath):
 	

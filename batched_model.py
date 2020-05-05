@@ -291,7 +291,10 @@ def save_predictions( predictions, data, out_filename ):
 	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
 	out.to_csv(out_filename, mode='a')
 
-def test_simple( testfile, outpath, feature_list ):
+def test_simple( testpath, outpath, feature_list ):
+	
+	out = pd.DataFrame.from_dict({}, columns=['user', 'channel', 'subscribed'], orient='index')
+	out.to_csv(outpath+'/preds.csv')
 	
 	max_w = 300
 	embedding_d = 300
@@ -307,13 +310,15 @@ def test_simple( testfile, outpath, feature_list ):
 	print("Building model... opt="+str(opt.__name__)+"; lr="+str(lr))
 	model = build_model(max_w, feature_list, word_index, embedding_matrix, embedding_d, opt, lr)
 	
-	print("Loading model weights...")
-	model.load_weights('modelos/model_weights.h5')
+	for testfile in data_fnames(testpath):
 	
-	print("Predicting...")
-	test_data = read_data(testfile)
-	predictions = test_model_simple(model, tokenizer, max_w, test_data)
-	save_predictions( predictions, test_data, outpath+'/preds.csv' )
+		print("Loading model weights...")
+		model.load_weights('modelos/model_weights.h5')
+		
+		print("Predicting...")
+		test_data = read_data(testfile)
+		predictions = test_model_simple(model, tokenizer, max_w, test_data)
+		save_predictions( predictions, test_data, outpath+'/preds.csv' )
 
 if __name__ == '__main__':
 	
@@ -330,10 +335,7 @@ if __name__ == '__main__':
 	elif mode == 'test':
 		testpath = sys.argv[2]
 		outpath = sys.argv[3]
-		out = pd.DataFrame.from_dict({}, columns=['user', 'channel', 'subscribed'], orient='index')
-		out.to_csv(outpath+'/preds.csv')
-		for fname in data_fnames(testpath):
-			test_simple( fname, outpath, feature_list )
+		test_simple( testpath, outpath, feature_list )
 		#test_batched( testfile, testlines, outpath, feature_list )
 	else:
 		print("ERROR: Unkown execution mode.")

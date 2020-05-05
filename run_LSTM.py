@@ -1,9 +1,11 @@
 import sys
-from pathlib import Path
+import string
 
+from pathlib import Path
 import json
 import csv
 import pandas as pd
+import pickle
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,19 +32,27 @@ import keras
 
 from prepare_data import *
 
-def read_data(csv_filename):
-	df = pd.read_csv(csv_filename)
+def read_data(csv_filename, skiprows=None, nrows=None):
+	df = pd.read_csv(csv_filename, skiprows=idx*batch_size, nrows=batch_size)
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(eval)
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(np.asarray)
 	return df
 	
 def clean_text(text):
-	tknzr = TweetTokenizer(reduce_len=True, preserve_case=False)
-	return [ ' '.join(tknzr.tokenize(str(m))) for m in text  ]
+	cleant = []
+	punc = set(string.punctuation)
+	for id, msg in enumerate(text):
+		if str(msg) != "nan":
+			text_tokens = word_tokenize(msg)
+			msg = ''.join(w if set(w) <= punc else ' '+w+' ' for w in text_tokens)
+			msg = ' '.join(s.split())
+		cleant.append(str(msg))
+	return cleant
+	#tknzr = TweetTokenizer(reduce_len=True, preserve_case=False)
+	#return [ ' '.join(tknzr.tokenize(str(m))) for m in text  ]
 
 def train_tokenizer(text):
 
-	NUM_WORDS=90000000000 # the maximum number of words to keep, based on word frequency. Only the most common num_words-1 words will be kept.
 	cleaned_m = clean_text(text)
 	tokenizer = Tokenizer(filters='\t\n', lower=True, oov_token = True)
 	tokenizer.fit_on_texts(cleaned_m) #create a array of words with indices
@@ -219,6 +229,19 @@ def hyperparemeter_search(inpath, outpath, feature_list):
 					outfile = outpath+'/preds-maxw_'+str(max_w)+'-edim_'+str(embedding_d)+'-opt_'+str(opt.__name__)+'-lr_'+str(lr)+'.csv'
 					save_predictions( predictions, data, outfile )
 
+def test_file( infile, outpath, feature_list ):
+
+	max_w = 300
+	embedding_d = 300
+	opt = keras.optimizers.Adagrad
+	lr = 0.001
+	
+	print("Reading data...")
+	train_data = read_data(infile)
+	
+	...
+	
+
 def train_all_files( inpath, outpath, feature_list ):
 
 	max_w = 300
@@ -271,6 +294,7 @@ if __name__ == '__main__':
 	mode = sys.argv[1]
 	inpath = sys.argv[2]
 	outpath = sys.argv[3]
+	innlines = sys.argv[4]
 	
 	feature_list = [ 'sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)' ]
 	
@@ -278,52 +302,10 @@ if __name__ == '__main__':
 		hyperparemeter_search( inpath, outpath, feature_list )
 	elif mode == 'train':
 		train_all_files( inpath, outpath, feature_list )
+	elif mode == 'test':
+		test_file( inpath, outpath, feature_list )
 	else:
 		print("ERROR: Unkown execution mode.")
 		sys.exit(1)
-	
-	print("Done.")
-
-def oldmain():
-
-	MAX_WORDS=400
-	EMBEDDING_DIM = 300
-	
-	in_filename = sys.argv[1]
-	out_filename = sys.argv[2]
-
-	print("Reading data...")
-	#data = read_data('timestamps/train_22_291_184_80_shuffle.csv')
-	data = read_data(in_filename)
-	train_data, test_data = train_test_split(data, test_size=0.2, random_state=1)
-	train_data, val_data = train_test_split(train_data, test_size=0.25, random_state=1) # 0.25 x 0.8 = 0.2
-
-	feature_list = ['sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)']
-	
-	print("Preprocessing text...")
-	tokenizer, word_index = train_tokenizer(train_data.concatenated_m)
-	X_train = run_tokenizer(tokenizer, train_data.concatenated_m, MAX_WORDS)
-	X_val = run_tokenizer(tokenizer, val_data.concatenated_m, MAX_WORDS)
-	X_test = run_tokenizer(tokenizer, test_data.concatenated_m, MAX_WORDS)
-
-	print("Creating embedding matrix...")
-	embedding_matrix = create_embedding_matrix(word_index, EMBEDDING_DIM)
-
-	print("Building RMSprop model...")
-	#model = build_model(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
-	model = build_model_RMSprop(X_train, train_data[feature_list], word_index, embedding_matrix, EMBEDDING_DIM)
-	
-	print("Training model...")
-	train_model(model, [X_train, train_data[feature_list]], train_data.subscribed, [X_val, val_data[feature_list]], val_data.subscribed)
-	
-	print("Evaluating...")
-	RMSprop_predictions = test_model(model, [X_test, test_data[feature_list]], test_data.subscribed)
-	save_predictions( RMSprop_predictions, data, out_filename )
-	
-	print("===============================================================")
-	print("REPORT:")
-	print("===============================================================")
-	print( sklearn.metrics.classification_report(y_true=np.asarray(test_data.subscribed), y_pred=predictions) )
-	print("===============================================================")
 	
 	print("Done.")

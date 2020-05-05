@@ -268,7 +268,7 @@ def test_batched( testfile, testlines, outpath, feature_list ):
 
 def test_model_simple(model, tokenizer, max_w, test_data):
 
-	X_test = [ run_tokenizer(tokenizer, df.concatenated_m, max_w), test_data[feature_list] ]
+	X_test = [ run_tokenizer(tokenizer, test_data.concatenated_m, max_w), test_data[feature_list] ]
 	
 	predicted_test = model.predict(X_test)
 	

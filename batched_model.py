@@ -144,7 +144,7 @@ def batch_generator(Train_df, batch_size, steps, tokenizer, max_w):
 		else:
 			idx = 1
 			
-def train_model(model, tokenizer, trainfile, trainlines, valfile, vallines, batch_size, epochs, savemodel=False):
+def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, vallines, batch_size, epochs, savemodel=False):
 	
 	steps_per_epoch=np.ceil(trainlines/batch_size)
 	validation_steps=np.ceil(vallines/batch_size)
@@ -199,7 +199,7 @@ def train_batched( trainfile, trainlines, valfile, vallines, outpath, feature_li
 	model = build_model(max_w, feature_list, word_index, embedding_matrix, embedding_d, opt, lr)
 	
 	print("Training model...")
-	train_model(model, tokenizer, trainfile, trainlines, valfile, vallines, batch_size, epochs=1, savemodel=True)
+	train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, vallines, batch_size, epochs=1, savemodel=True)
 
 if __name__ == '__main__':
 	

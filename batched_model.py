@@ -194,7 +194,7 @@ def train_batched( trainfile, trainlines, valfile, vallines, feature_list ):
 	opt = keras.optimizers.Adagrad
 	lr = 0.001
 	
-	batch_size = 100000
+	batch_size = 1000
 	
 	print("Training tokenizer...")
 	tokenizer, word_index = train_tokenizer( trainfile, batch_size, trainlines )

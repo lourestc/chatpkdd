@@ -229,19 +229,6 @@ def hyperparemeter_search(inpath, outpath, feature_list):
 					outfile = outpath+'/preds-maxw_'+str(max_w)+'-edim_'+str(embedding_d)+'-opt_'+str(opt.__name__)+'-lr_'+str(lr)+'.csv'
 					save_predictions( predictions, data, outfile )
 
-def test_file( infile, outpath, feature_list ):
-
-	max_w = 300
-	embedding_d = 300
-	opt = keras.optimizers.Adagrad
-	lr = 0.001
-	
-	print("Reading data...")
-	train_data = read_data(infile)
-	
-	...
-	
-
 def train_all_files( inpath, outpath, feature_list ):
 
 	max_w = 300

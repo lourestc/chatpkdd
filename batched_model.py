@@ -70,6 +70,13 @@ def train_tokenizer( infile, batch_size, innlines ):
 		pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 		
 	return tokenizer, word_index
+	
+def load_tokenizer():
+
+	with open('modelos/tokenizer.pickle', 'rb') as handle:
+		tokenizer = pickle.load(handle)
+	
+	return tokenizer, tokenizer.word_index
 
 def run_tokenizer(tokenizer, text, MAX_WORDS):
 
@@ -130,15 +137,15 @@ def build_model(sequence_length, feature_list, word_index, embedding_matrix, EMB
 					
 	return model
 
-def load_data_batch(Train_df, idx, batch_size, tokenizer, max_w):
+def load_data_batch(Train_df, idx, batch_size, tokenizer, max_w, feature_list):
 	df = read_data(Train_df, skiprows=idx*batch_size, nrows=batch_size)
 	X_train = run_tokenizer(tokenizer, df.concatenated_m, max_w)
-	return [X_train, train_data[feature_list]], df.subscribed
+	return [X_train, df[feature_list]], df.subscribed
 
-def batch_generator(Train_df, batch_size, steps, tokenizer, max_w):
+def batch_generator(Train_df, batch_size, steps, tokenizer, max_w, feature_list):
 	idx=1
 	while True: 
-		yield load_data_batch(Train_df,idx-1,batch_size, tokenizer, max_w) #Yields data
+		yield load_data_batch(Train_df,idx-1,batch_size, tokenizer, max_w, feature_list) #Yields data
 		if idx<steps:
 			idx += 1
 		else:
@@ -201,6 +208,110 @@ def train_batched( trainfile, trainlines, valfile, vallines, outpath, feature_li
 	print("Training model...")
 	train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, vallines, batch_size, epochs=1, savemodel=True)
 
+def load_test_batch(Test_df, idx, batch_size, tokenizer, max_w, feature_list):
+	df = read_data(Test_df, skiprows=idx*batch_size, nrows=batch_size)
+	X_test = run_tokenizer(tokenizer, df.concatenated_m, max_w)
+	return [X_test, df[feature_list]]
+
+def test_generator(Test_df, batch_size, steps, tokenizer, max_w, feature_list):
+	idx=1
+	while True: 
+		yield load_test_batch(Test_df,idx-1,batch_size, tokenizer, max_w, feature_list) #Yields data
+		if idx<steps:
+			idx += 1
+		else:
+			idx = 1
+
+def test_model(model, tokenizer, max_w, testfile, testlines, batch_size):
+
+	test_steps=np.ceil(testlines/batch_size)
+	
+	testing_batch_generator = test_generator(testfile, batch_size, test_steps, tokenizer, max_w)
+	
+	predicted_test = model.predict_generator(testing_batch_generator, steps=test_steps, verbose=1)
+	
+	predictions = []
+	for i, predicted2 in enumerate(predicted_test):
+		if predicted2[0] >= 0.50:
+			predictions.append(1)
+		else:
+			predictions.append(0)
+			
+	return predictions
+
+def test_batched( testfile, testlines, outpath, feature_list ):
+	
+	max_w = 300
+	embedding_d = 300
+	opt = keras.optimizers.Adagrad
+	lr = 0.001
+	
+	batch_size = 10000
+	
+	print("Loading tokenizer...")
+	tokenizer, word_index = load_tokenizer()
+	
+	print("Creating embedding matrix... embedding_d="+str(embedding_d))
+	embedding_matrix = create_embedding_matrix(word_index, embedding_d)
+	
+	print("Building model... opt="+str(opt.__name__)+"; lr="+str(lr))
+	model = build_model(max_w, feature_list, word_index, embedding_matrix, embedding_d, opt, lr)
+	
+	print("Loading model weights...")
+	model.load_weights('modelos/model_weights.h5')
+	
+	print("Generating predictions model...")
+	predictions = test_model(model, tokenizer, max_w, testfile, testlines, batch_size)
+
+def test_model_simple(model, tokenizer, max_w, test_data):
+
+	X_test = [ run_tokenizer(tokenizer, df.concatenated_m, max_w), test_data[feature_list] ]
+	
+	predicted_test = model.predict(X_test)
+	
+	predictions = []
+	for i, predicted2 in enumerate(predicted_test):
+		if predicted2[0] >= 0.50:
+			predictions.append(1)
+		else:
+			predictions.append(0)
+			
+	return predictions
+	
+def save_predictions( predictions, data, out_filename ):
+
+	odict = {}
+	
+	for i,pred in enumerate(predictions):
+		odict[i] = [ data.loc[i,'user'], data.loc[i,'channel'], pred ]
+		
+	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
+	out.to_csv(out_filename)
+
+def test_simple( testfile, outpath, feature_list ):
+	
+	max_w = 300
+	embedding_d = 300
+	opt = keras.optimizers.Adagrad
+	lr = 0.001
+	
+	print("Loading tokenizer...")
+	tokenizer, word_index = load_tokenizer()
+	
+	print("Creating embedding matrix... embedding_d="+str(embedding_d))
+	embedding_matrix = create_embedding_matrix(word_index, embedding_d)
+	
+	print("Building model... opt="+str(opt.__name__)+"; lr="+str(lr))
+	model = build_model(max_w, feature_list, word_index, embedding_matrix, embedding_d, opt, lr)
+	
+	print("Loading model weights...")
+	model.load_weights('modelos/model_weights.h5')
+	
+	print("Predicting...")
+	test_data = read_data(testfile)
+	predictions = test_model_simple(model, tokenizer, max_w, test_data)
+	save_predictions( predictions, test_data, outpath+'/preds.csv' )
+
 if __name__ == '__main__':
 	
 	feature_list = [ 'sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)' ]
@@ -215,10 +326,11 @@ if __name__ == '__main__':
 		outpath = sys.argv[6]
 		train_batched( trainfile, trainlines, valfile, vallines, outpath, feature_list )
 	elif mode == 'test':
-		testfile = sys.argv[4]
-		testlines = int(sys.argv[5])
-		outpath = sys.argv[6]
-		test_batched( testfile, testlines, outpath, feature_list )
+		testpath = sys.argv[2]
+		outpath = sys.argv[3]
+		for fname in data_fnames(testpath):
+			test_simple( fname, outpath, feature_list )
+		#test_batched( testfile, testlines, outpath, feature_list )
 	else:
 		print("ERROR: Unkown execution mode.")
 		sys.exit(1)

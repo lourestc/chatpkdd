@@ -286,7 +286,7 @@ def save_predictions( predictions, data, out_filename ):
 		odict[i] = [ data.loc[i,'user'], data.loc[i,'channel'], pred ]
 		
 	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
-	out.to_csv(out_filename)
+	out.to_csv(out_filename, mode='a')
 
 def test_simple( testfile, outpath, feature_list ):
 	
@@ -327,6 +327,8 @@ if __name__ == '__main__':
 	elif mode == 'test':
 		testpath = sys.argv[2]
 		outpath = sys.argv[3]
+		out = pd.DataFrame.from_dict({}, columns=['user', 'channel', 'subscribed'], orient='index')
+		out.to_csv(outpath+'/preds.csv')
 		for fname in data_fnames(testpath):
 			test_simple( fname, outpath, feature_list )
 		#test_batched( testfile, testlines, outpath, feature_list )

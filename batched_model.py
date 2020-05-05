@@ -159,7 +159,7 @@ def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, valline
 
 		hist = model.fit_generator( training_batch_generator, epochs=1, steps_per_epoch=steps_per_epoch,
 													validation_data=validation_batch_generator, validation_steps=validation_steps,
-													verbose=1, use_multiprocessing=True )
+													verbose=1 ) # , use_multiprocessing=True
 
 		print(model.layers[2].name)
 		print(model.layers[2].input.shape)

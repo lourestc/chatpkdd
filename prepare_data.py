@@ -48,13 +48,16 @@ def convert_json_DataFrame(json_filename, ground_truth):
 		ts_list = [ m['t'] for m in messages ]
 		delta_ts = [0]+[ ts2-ts1 for ts1,ts2 in zip(ts_list[:-1],ts_list[1:]) ]
 		
-		subscribed = ground_truth[channel][user]
-	
-		final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts), subscribed ])		
-		cont += 1
-		
-	return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed'], orient='index')
-	pd.DataFrame.from_dict(dic, columns=['concatenated_m'], orient='index')
+		if ground_truth:
+			subscribed = ground_truth[channel][user]
+			final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts), subscribed ])		
+			cont += 1
+			return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed'], orient='index')
+		else:
+			subscribed = ground_truth[channel][user]
+			final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts), subscribed ])		
+			cont += 1
+			return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts'], orient='index')
 
 def remove_stopwords(dataframe):
 	stoplist =  stopwords.words('english')
@@ -112,11 +115,19 @@ if __name__ == '__main__':
 	mode = sys.argv[1]
 	inpath = sys.argv[2]
 	outpath = sys.argv[3]
+	include_gt = sys.argv[4]
 	
-	gt = read_ground_truth('../ChAT/train_truth.csv')
+	if include_gt:
+		gt = read_ground_truth('../ChAT/train_truth.csv')
+	else:
+		gt = None
 	
 	if mode == 'first':
 		infile = data_fnames(inpath)[0]
+		df = prepare_data_from_json(infile,gt)
+		df.to_csv(outpath+'/'+infile.stem+'.csv')
+	elif mode == 'file':
+		infile = inpath
 		df = prepare_data_from_json(infile,gt)
 		df.to_csv(outpath+'/'+infile.stem+'.csv')
 	elif mode == 'all':

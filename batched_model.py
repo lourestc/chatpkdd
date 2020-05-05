@@ -209,14 +209,14 @@ if __name__ == '__main__':
 	
 	if mode == 'train':
 		trainfile = sys.argv[2]
-		trainlines = sys.argv[3]
+		trainlines = int(sys.argv[3])
 		valfile = sys.argv[4]
-		vallines = sys.argv[5]
+		vallines = int(sys.argv[5])
 		outpath = sys.argv[6]
 		train_batched( trainfile, trainlines, valfile, vallines, outpath, feature_list )
 	elif mode == 'test':
 		testfile = sys.argv[4]
-		testlines = sys.argv[5]
+		testlines = int(sys.argv[5])
 		outpath = sys.argv[6]
 		test_batched( testfile, testlines, outpath, feature_list )
 	else:

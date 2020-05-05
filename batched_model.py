@@ -81,7 +81,7 @@ def load_tokenizer():
 def run_tokenizer(tokenizer, text, MAX_WORDS):
 
 	sequences = tokenizer.texts_to_sequences(clean_text(text)) #transform in an array of indices
-	padded_seq = pad_sequences(sequences, maxlen=MAX_WORDS)
+	padded_seq = keras.preprocessing.sequence.pad_sequences(sequences, maxlen=MAX_WORDS)
 	
 	return padded_seq
 

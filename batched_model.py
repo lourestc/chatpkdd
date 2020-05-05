@@ -156,8 +156,8 @@ def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, valline
 	steps_per_epoch=np.ceil(trainlines/batch_size)
 	validation_steps=np.ceil(vallines/batch_size)
 	
-	training_batch_generator = batch_generator(trainfile, batch_size, steps_per_epoch, tokenizer, max_w)
-	validation_batch_generator = batch_generator(valfile, batch_size, validation_steps, tokenizer, max_w)
+	training_batch_generator = batch_generator(trainfile, batch_size, steps_per_epoch, tokenizer, max_w, feature_list)
+	validation_batch_generator = batch_generator(valfile, batch_size, validation_steps, tokenizer, max_w, feature_list)
 	
 	val_loss = None
 	val_acc = 0
@@ -187,7 +187,7 @@ def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, valline
 	#callbacks = [EarlyStopping(monitor='val_loss')]
 	#hist = model.fit(X_train, y_train, batch_size=50, epochs=1, validation_split=0.2, callbacks=callbacks)
 
-def train_batched( trainfile, trainlines, valfile, vallines, outpath, feature_list ):
+def train_batched( trainfile, trainlines, valfile, vallines, feature_list ):
 	
 	max_w = 300
 	embedding_d = 300
@@ -323,8 +323,7 @@ if __name__ == '__main__':
 		trainlines = int(sys.argv[3])
 		valfile = sys.argv[4]
 		vallines = int(sys.argv[5])
-		outpath = sys.argv[6]
-		train_batched( trainfile, trainlines, valfile, vallines, outpath, feature_list )
+		train_batched( trainfile, trainlines, valfile, vallines, feature_list )
 	elif mode == 'test':
 		testpath = sys.argv[2]
 		outpath = sys.argv[3]

@@ -246,7 +246,7 @@ def test_batched( testfile, testlines, outpath, feature_list ):
 	opt = keras.optimizers.Adagrad
 	lr = 0.001
 	
-	batch_size = 10000
+	batch_size = 1000
 	
 	print("Loading tokenizer...")
 	tokenizer, word_index = load_tokenizer()

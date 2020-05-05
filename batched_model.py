@@ -29,7 +29,7 @@ import keras
 from prepare_data import *
 
 def read_data(csv_filename, skiprows=None, nrows=None):
-	df = pd.read_csv(csv_filename, skiprows=skiprows, nrows=nrows)
+	df = pd.read_csv(csv_filename, skiprows=range(1,skiprows+1), nrows=nrows)
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(eval)
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(np.asarray)
 	return df

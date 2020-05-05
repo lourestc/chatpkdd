@@ -209,7 +209,7 @@ def train_batched( trainfile, trainlines, valfile, vallines, feature_list ):
 	model = build_model(max_w, feature_list, word_index, embedding_matrix, embedding_d, opt, lr)
 	
 	print("Training model...")
-	train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, vallines, batch_size, epochs=1, savemodel=True)
+	train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, vallines, batch_size, epochs=10, savemodel=True)
 
 def load_test_batch(Test_df, idx, batch_size, tokenizer, max_w, feature_list):
 	df = read_data(Test_df, skiprows=idx*batch_size, nrows=batch_size)

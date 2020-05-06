@@ -195,7 +195,7 @@ def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, valline
 def train_batched( trainfile, trainlines, valfile, vallines, feature_list ):
 	
 	max_w = 300
-	embedding_d = 300
+	embedding_d = 100
 	opt = keras.optimizers.Adagrad
 	lr = 0.001
 	
@@ -245,7 +245,7 @@ def test_model(model, tokenizer, max_w, testfile, testlines, batch_size):
 def test_batched( testfile, testlines, outpath, feature_list ):
 	
 	max_w = 300
-	embedding_d = 300
+	embedding_d = 100
 	opt = keras.optimizers.Adagrad
 	lr = 0.001
 	
@@ -295,7 +295,7 @@ def test_simple( testpath, outpath, feature_list ):
 	out.to_csv(outpath+'/preds.csv')
 	
 	max_w = 300
-	embedding_d = 300
+	embedding_d = 100
 	opt = keras.optimizers.Adagrad
 	lr = 0.001
 	

@@ -158,8 +158,8 @@ def batch_generator(Train_df, batch_size, steps, tokenizer, max_w, feature_list)
 			
 def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, vallines, batch_size, epochs, savemodel=False):
 	
-	steps_per_epoch=np.ceil(trainlines/batch_size)
-	validation_steps=np.ceil(vallines/batch_size)
+	steps_per_epoch = trainlines // batch_size
+	validation_steps = vallines // batch_size
 	
 	training_batch_generator = batch_generator(trainfile, batch_size, steps_per_epoch, tokenizer, max_w, feature_list)
 	validation_batch_generator = batch_generator(valfile, batch_size, validation_steps, tokenizer, max_w, feature_list)

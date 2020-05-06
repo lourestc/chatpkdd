@@ -28,8 +28,10 @@ import keras
 
 from prepare_data import *
 
+batch_size = 128
+
 def read_data(csv_filename, skiprows=None, nrows=None):
-	if skiprows:
+	if skiprows>0:
 		df = pd.read_csv(csv_filename, skiprows=range(1,skiprows+1), nrows=nrows)
 	else:
 		df = pd.read_csv(csv_filename)
@@ -146,13 +148,13 @@ def load_data_batch(Train_df, idx, batch_size, tokenizer, max_w, feature_list):
 	return [X_train, df[feature_list]], df.subscribed
 
 def batch_generator(Train_df, batch_size, steps, tokenizer, max_w, feature_list):
-	idx=1
+	idx=0
 	while True: 
-		yield load_data_batch(Train_df,idx-1,batch_size, tokenizer, max_w, feature_list) #Yields data
+		yield load_data_batch(Train_df,idx,batch_size, tokenizer, max_w, feature_list) #Yields data
 		if idx<steps:
 			idx += 1
 		else:
-			idx = 1
+			idx = 0
 			
 def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, vallines, batch_size, epochs, savemodel=False):
 	
@@ -196,8 +198,6 @@ def train_batched( trainfile, trainlines, valfile, vallines, feature_list ):
 	embedding_d = 300
 	opt = keras.optimizers.Adagrad
 	lr = 0.001
-	
-	batch_size = 1000
 	
 	print("Training tokenizer...")
 	tokenizer, word_index = train_tokenizer( trainfile, batch_size, trainlines )
@@ -248,8 +248,6 @@ def test_batched( testfile, testlines, outpath, feature_list ):
 	embedding_d = 300
 	opt = keras.optimizers.Adagrad
 	lr = 0.001
-	
-	batch_size = 1000
 	
 	print("Loading tokenizer...")
 	tokenizer, word_index = load_tokenizer()

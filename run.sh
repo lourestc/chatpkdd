@@ -14,5 +14,5 @@ python prepare_data.py all "splitted" "prepared" False
 #INNLINES=$(wc -l < "$INFILE")
 
 #python run_LSTM.py hsearch "prepared" $OUTPATH $INNLINES
-#python batched_model.py train "prepared/train0001.csv" 100000 "prepared/train0000.csv" 100000 $OUTPATH
+#python batched_model.py train "prepared/train0001.csv" 100000 "prepared/train0000.csv" 100000
 python batched_model.py test "prepared" $OUTPATH

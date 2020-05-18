@@ -168,33 +168,31 @@ def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, valline
 	training_batch_generator = batch_generator(trainfile, batch_size, steps_per_epoch, tokenizer, max_w, feature_list)
 	validation_batch_generator = batch_generator(valfile, batch_size, validation_steps, tokenizer, max_w, feature_list)
 	
-	val_loss = None
-	val_acc = 0
-	for e in range(0,epochs):
-		print('epochs', e)
-
-		hist = model.fit_generator( training_batch_generator, epochs=1, steps_per_epoch=steps_per_epoch,
-													validation_data=validation_batch_generator, validation_steps=validation_steps,
-													verbose=1, workers=0 ) # , use_multiprocessing=True
-
-		print(model.layers[2].name)
-		print(model.layers[2].input.shape)
-		print(model.layers[2].output.shape)
-
-
-		print(model.layers[3].name)
-		print(model.layers[3].input.shape)
-		print(model.layers[3].output.shape)
-
-
-		if val_loss==None or hist.history['val_loss'][0] < val_loss['loss']:
-			val_acc = hist.history['val_accuracy'][0]
-			val_loss = {'loss': hist.history['val_loss'][0], 'epoch': e}
-			if savemodel:
-				model.save_weights('modelos/model_weights.h5', overwrite=True)
-				print('epochs_save', e)
-	#callbacks = [EarlyStopping(monitor='val_loss')]
-	#hist = model.fit(X_train, y_train, batch_size=50, epochs=1, validation_split=0.2, callbacks=callbacks)
+	checkpoint = keras.callbacks.ModelCheckpoint( "modelos/model_weights.h5", monitor='val_loss', mode='auto',
+																			save_best_only=True, save_weights_only=True,
+																			period=1, verbose=1 )
+	
+	hist = model.fit_generator( training_batch_generator, epochs=epochs, steps_per_epoch=steps_per_epoch,
+												validation_data=validation_batch_generator, validation_steps=validation_steps,
+												callbacks=[checkpoint] if savemodel else None,
+												verbose=1, workers=1, use_multiprocessing=True )
+	
+	#val_loss = None
+	#val_acc = 0
+	#for e in range(0,epochs):
+	#	print('epochs', e)
+	#
+	#	hist = model.fit_generator( training_batch_generator, epochs=epochs, steps_per_epoch=steps_per_epoch,
+	#												validation_data=validation_batch_generator, validation_steps=validation_steps,
+	#												callbacks=[checkpoint] if savemodel else None,
+	#												verbose=1, workers=1, use_multiprocessing=True )
+	#
+	#	if val_loss==None or hist.history['val_loss'][0] < val_loss['loss']:
+	#		val_acc = hist.history['val_accuracy'][0]
+	#		val_loss = {'loss': hist.history['val_loss'][0], 'epoch': e}
+	#		if savemodel:
+	#			model.save_weights('modelos/model_weights.h5', overwrite=True)
+	#			print('epochs_save', e)
 
 def train_batched( trainfile, trainlines, valfile, vallines, feature_list ):
 	

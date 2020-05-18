@@ -31,6 +31,7 @@ from prepare_data import *
 batch_size = 128
 
 def read_data(csv_filename, skiprows=None, nrows=None):
+	print(f"Reading {nrows} rows, skipping {skiprows}")
 	if skiprows>0:
 		df = pd.read_csv(csv_filename, skiprows=range(1,skiprows+1), nrows=nrows)
 	else:
@@ -150,7 +151,7 @@ def load_data_batch(Train_df, idx, batch_size, tokenizer, max_w, feature_list):
 def batch_generator(Train_df, batch_size, steps, tokenizer, max_w, feature_list):
 	idx=0
 	while True: 
-		yield load_data_batch(Train_df,idx,batch_size, tokenizer, max_w, feature_list) #Yields data
+		yield load_data_batch(Train_df, idx, batch_size, tokenizer, max_w, feature_list) #Yields data
 		if idx<steps:
 			idx += 1
 		else:
@@ -160,9 +161,6 @@ def train_model(model, tokenizer, max_w, trainfile, trainlines, valfile, valline
 	
 	steps_per_epoch = np.ceil(trainlines / batch_size)
 	validation_steps = np.ceil(vallines / batch_size)
-	
-	print(steps_per_epoch,validation_steps)
-	input("Press Enter to continue...")
 	
 	training_batch_generator = batch_generator(trainfile, batch_size, steps_per_epoch, tokenizer, max_w, feature_list)
 	validation_batch_generator = batch_generator(valfile, batch_size, validation_steps, tokenizer, max_w, feature_list)

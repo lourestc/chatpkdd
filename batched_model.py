@@ -35,7 +35,7 @@ def read_data(csv_filename, skiprows=None, nrows=None):
 	if skiprows>0:
 		df = pd.read_csv(csv_filename, skiprows=range(1,skiprows+1), nrows=nrows)
 	else:
-		df = pd.read_csv(csv_filename)
+		df = pd.read_csv(csv_filename, nrows=nrows)
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(eval)
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(np.asarray)
 	return df
@@ -63,7 +63,7 @@ def batch_text_generator(Train_df, batch_size, steps):
 
 def train_tokenizer( infile, batch_size, innlines ):
 
-	tokenizer_steps=np.ceil(innlines/batch_size)
+	tokenizer_steps = np.ceil(innlines/batch_size)
 	
 	tokenizer = keras.preprocessing.text.Tokenizer(filters='\t\n', lower=True, oov_token = True)
 	tokenizer_generator = batch_text_generator( infile, batch_size, tokenizer_steps )

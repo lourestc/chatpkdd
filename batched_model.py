@@ -314,9 +314,8 @@ def test_simple( testpath, outpath, feature_list ):
 	print("Loading model weights...")
 	model.load_weights('modelos/model_weights.h5')
 	
+	print("Predicting...")
 	for testfile in data_fnames(testpath):
-		
-		print("Predicting...")
 		test_data = read_data(testfile)
 		predictions = test_model_simple(model, tokenizer, max_w, test_data)
 		save_predictions( predictions, test_data, outpath+'/preds.csv' )

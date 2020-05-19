@@ -28,13 +28,16 @@ import keras
 
 from prepare_data import *
 
-batch_size = 1000
+batch_size = 128
 
 def read_data(csv_filename, skiprows=None, nrows=None):
 
 	if skiprows>0:
 		df = pd.read_csv(csv_filename, skiprows=range(1,skiprows+1), nrows=nrows)
 	else:
+		df = pd.read_csv(csv_filename, nrows=nrows)
+		
+	if len(df)==0:
 		df = pd.read_csv(csv_filename, nrows=nrows)
 	
 	df.loc[:,'delta_ts'] = df['delta_ts'].apply(eval)

@@ -30,7 +30,7 @@ from prepare_data import *
 
 batch_size = 128
 
-def read_data(csv_filename, skiprows=None, nrows=None):
+def read_data(csv_filename, skiprows=0, nrows=None):
 
 	if skiprows>0:
 		df = pd.read_csv(csv_filename, skiprows=range(1,skiprows+1), nrows=nrows)
@@ -220,13 +220,13 @@ def load_test_batch(Test_df, idx, batch_size, tokenizer, max_w, feature_list):
 	return [X_test, df[feature_list]]
 
 def test_generator(Test_df, batch_size, steps, tokenizer, max_w, feature_list):
-	idx=1
+	idx=0
 	while True: 
-		yield load_test_batch(Test_df,idx-1,batch_size, tokenizer, max_w, feature_list) #Yields data
+		yield load_test_batch(Test_df,idx,batch_size, tokenizer, max_w, feature_list) #Yields data
 		if idx<steps:
 			idx += 1
 		else:
-			idx = 1
+			idx = 0
 
 def test_model(model, tokenizer, max_w, testfile, testlines, batch_size):
 

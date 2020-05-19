@@ -311,10 +311,10 @@ def test_simple( testpath, outpath, feature_list ):
 	print("Building model... opt="+str(opt.__name__)+"; lr="+str(lr))
 	model = build_model(max_w, feature_list, word_index, embedding_matrix, embedding_d, opt, lr)
 	
-	for testfile in data_fnames(testpath):
+	print("Loading model weights...")
+	model.load_weights('modelos/model_weights.h5')
 	
-		print("Loading model weights...")
-		model.load_weights('modelos/model_weights.h5')
+	for testfile in data_fnames(testpath):
 		
 		print("Predicting...")
 		test_data = read_data(testfile)

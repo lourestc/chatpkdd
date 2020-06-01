@@ -18,4 +18,7 @@ python prepare_data.py all "splitted" "test_prepared" False
 
 #python run_LSTM.py hsearch "prepared" $OUTPATH $INNLINES
 #python batched_model.py train "prepared/train_split.csv" 20000000 "prepared/val_split.csv" 9539420
+
+mkdir $OUTPATH
+
 python batched_model.py test "test_prepared" $OUTPATH

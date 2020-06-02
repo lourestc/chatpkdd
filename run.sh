@@ -4,7 +4,7 @@ INFILE=$1 #"timestamps/train (2).csv"
 OUTPATH=$2 #"predictions/"
 
 CONDA_BASE=$(conda info --base)
-source $CONDA_BASE
+source ${CONDA_BASE}/etc/profile.d/conda.sh
 conda init
 conda activate pkddchat
 

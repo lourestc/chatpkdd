@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 INFILE=$1 #"timestamps/train (2).csv"
 OUTPATH=$2 #"predictions/"

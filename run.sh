@@ -4,6 +4,7 @@ INFILE=$1 #"timestamps/train (2).csv"
 OUTPATH=$2 #"predictions/"
 
 source ~/anaconda3/etc/profile.d/conda.sh
+conda init
 conda activate pkddchat
 
 mkdir "splitted"

@@ -117,7 +117,7 @@ if __name__ == '__main__':
 	outpath = sys.argv[3]
 	include_gt = sys.argv[4]
 	
-	if include_gt:
+	if include_gt=='True':
 		gt = read_ground_truth('../ChAT/train_truth.csv')
 	else:
 		gt = None

@@ -34,7 +34,8 @@ def convert_json_DataFrame(json_filename, ground_truth):
 			try:
 				UserChannels.append(json.loads(line))
 			except:
-				print(line)
+				with open('problemjson.json','w') as fw:
+					fw.write(line)
 			
 	final_results = dict()
 	cont = 0

@@ -8,12 +8,14 @@ source ${CONDA_BASE}/etc/profile.d/conda.sh
 conda init
 conda activate pkddchat
 
-mkdir "splitted"
+rm -r splitted
+mkdir splitted
 
 FLINES=100000
 tail -n +2 $INFILE | split -l $FLINES - --filter='sh -c "{ head -n1 $INFILE; cat; } > $FILE"' "splitted/x"
 
-mkdir "test_prepared"
+rm -r test_prepared
+mkdir test_prepared
 
 python prepare_data.py all "splitted" "test_prepared" False
 
@@ -24,4 +26,4 @@ python prepare_data.py all "splitted" "test_prepared" False
 
 mkdir $OUTPATH
 
-python batched_model.py test "test_prepared" $OUTPATH
+#python batched_model.py test "test_prepared" $OUTPATH

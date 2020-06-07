@@ -12,8 +12,9 @@ rm -r splitted
 mkdir splitted
 
 FLINES=100000
+split -l $FLINES $INFILE splitted/
 # tail -n +2 $INFILE | split -l $FLINES - --filter='sh -c "{ head -n1 $INFILE; cat; } > $FILE"' "splitted/x"
-head -$FLINES $INFILE > "splitted/xaa"
+# head -$FLINES $INFILE > "splitted/xaa"
 
 rm -r test_prepared
 mkdir test_prepared

@@ -54,8 +54,7 @@ def convert_json_DataFrame(json_filename, ground_truth):
 			cont += 1
 			return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed'], orient='index')
 		else:
-			subscribed = ground_truth[channel][user]
-			final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts), subscribed ])		
+			final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts) ])		
 			cont += 1
 			return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts'], orient='index')
 

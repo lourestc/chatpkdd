@@ -28,4 +28,4 @@ python prepare_data.py all "splitted" "test_prepared" False
 
 mkdir $OUTPATH
 
-python batched_model.py test "test_prepared" $OUTPATH
+CUDA_VISIBLE_DEVICES="" python batched_model.py test "test_prepared" $OUTPATH

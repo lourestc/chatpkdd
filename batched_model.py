@@ -288,8 +288,6 @@ def save_predictions( predictions, data, out_filename ):
 
 	odict = {}
 	
-	print( "PREDICTIONS:", len(predictions))
-	
 	for i,pred in enumerate(predictions):
 		odict[i] = [ data.loc[i,'user'], data.loc[i,'channel'], pred ]
 		
@@ -321,8 +319,6 @@ def test_simple( testpath, outpath, feature_list ):
 	print("Predicting...")
 	for testfile in data_fnames(testpath):
 		test_data = read_data(testfile)
-		print( "DATA:", test_data.shape)
-		
 		predictions = test_model_simple(model, tokenizer, max_w, test_data)
 		save_predictions( predictions, test_data, outpath+'/preds.csv' )
 

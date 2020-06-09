@@ -20,6 +20,10 @@ from gensim.models.keyedvectors import KeyedVectors
 
 import nltk
 
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 import keras
 import tensorflow as tf
 #from keras.callbacks import EarlyStopping

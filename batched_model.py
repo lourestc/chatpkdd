@@ -1,7 +1,3 @@
-import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # see issue #152
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
 import sys
 import string
 
@@ -25,7 +21,6 @@ from gensim.models.keyedvectors import KeyedVectors
 import nltk
 
 import keras
-import tensorflow as tf
 #from keras.callbacks import EarlyStopping
 #from keras import backend as K
 #from keras.regularizers import l2
@@ -340,8 +335,7 @@ if __name__ == '__main__':
 	elif mode == 'test':
 		testpath = sys.argv[2]
 		outpath = sys.argv[3]
-		with tf.device('/cpu:0'):
-			test_simple( testpath, outpath, feature_list )
+		test_simple( testpath, outpath, feature_list )
 		#test_batched( testfile, testlines, outpath, feature_list )
 	else:
 		print("ERROR: Unkown execution mode.")

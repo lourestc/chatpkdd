@@ -6,7 +6,7 @@ OUTPATH=$2 #"predictions/"
 CONDA_BASE=$(conda info --base)
 source ${CONDA_BASE}/etc/profile.d/conda.sh
 conda init
-conda activate pkddchat
+#conda activate pkddchat
 
 rm -r splitted
 mkdir splitted
@@ -28,4 +28,4 @@ python prepare_data.py all "splitted" "test_prepared" False
 
 mkdir $OUTPATH
 
-CUDA_VISIBLE_DEVICES="" python batched_model.py test "test_prepared" $OUTPATH
+python batched_model.py test "test_prepared" $OUTPATH

@@ -21,6 +21,7 @@ from gensim.models.keyedvectors import KeyedVectors
 import nltk
 
 import keras
+import tensorflow as tf
 #from keras.callbacks import EarlyStopping
 #from keras import backend as K
 #from keras.regularizers import l2
@@ -335,7 +336,8 @@ if __name__ == '__main__':
 	elif mode == 'test':
 		testpath = sys.argv[2]
 		outpath = sys.argv[3]
-		test_simple( testpath, outpath, feature_list )
+		with tf.device('/cpu:0'):
+			test_simple( testpath, outpath, feature_list )
 		#test_batched( testfile, testlines, outpath, feature_list )
 	else:
 		print("ERROR: Unkown execution mode.")

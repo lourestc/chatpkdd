@@ -54,11 +54,14 @@ def convert_json_DataFrame(json_filename, ground_truth):
 			subscribed = ground_truth[channel][user]
 			final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts), subscribed ])		
 			cont += 1
-			return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed'], orient='index')
 		else:
 			final_results[cont].extend([ channel, user, concatenatedm, json.dumps(delta_ts) ])		
 			cont += 1
-			return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts'], orient='index')
+			
+	if ground_truth:
+		return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed'], orient='index')
+	else:
+		return pd.DataFrame.from_dict(final_results, columns=['channel', 'user', 'concatenated_m', 'delta_ts'], orient='index')
 
 def remove_stopwords(dataframe):
 	stoplist =  stopwords.words('english')

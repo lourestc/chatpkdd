@@ -286,6 +286,8 @@ def save_predictions( predictions, data, out_filename ):
 
 	odict = {}
 	
+	print( "PREDICTIONS:", len(predictions))
+	
 	for i,pred in enumerate(predictions):
 		odict[i] = [ data.loc[i,'user'], data.loc[i,'channel'], pred ]
 		

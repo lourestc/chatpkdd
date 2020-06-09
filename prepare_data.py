@@ -33,7 +33,7 @@ def convert_json_DataFrame(json_filename, ground_truth):
 		for line in f:
 			UserChannels.append(json.loads(line))
 			
-	print( "UC:", len(UserCHannels))
+	print( "UC:", len(UserChannels))
 	
 	final_results = dict()
 	cont = 0

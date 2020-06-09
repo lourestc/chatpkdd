@@ -319,7 +319,7 @@ def test_simple( testpath, outpath, feature_list ):
 	print("Predicting...")
 	for testfile in data_fnames(testpath):
 		test_data = read_data(testfile)
-		print( "DATA:", len(test_data))
+		print( "DATA:", test_data.shape)
 		predictions = test_model_simple(model, tokenizer, max_w, test_data)
 		save_predictions( predictions, test_data, outpath+'/preds.csv' )
 

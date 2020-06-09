@@ -39,7 +39,6 @@ def read_data(csv_filename, skiprows=None, nrows=None):
 	else:
 		df = pd.read_csv(csv_filename, nrows=nrows)
 		
-		
 	if len(df)==0:
 		df = pd.read_csv(csv_filename, nrows=nrows)
 	

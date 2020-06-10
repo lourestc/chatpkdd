@@ -16,8 +16,10 @@ mkdir test_prepared
 
 mkdir $OUTPATH
 
+echo 'user,channel,subscribed' > $OUTPATH'/preds.csv'
+
 INNLINES=$(wc -l < "$INFILE")
-FLINES=100000
+FLINES=10000
 NSPLITS=$(( ($INNLINES + ($FLINES - 1)) / $FLINES ))
 
 echo "Innlines:" $INNLINES

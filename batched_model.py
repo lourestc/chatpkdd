@@ -296,8 +296,8 @@ def save_predictions( predictions, data, out_filename ):
 
 def test_simple( testpath, outpath, feature_list ):
 	
-	out = pd.DataFrame.from_dict({}, columns=['user', 'channel', 'subscribed'], orient='index')
-	out.to_csv(outpath+'/preds.csv', index=False)
+	#out = pd.DataFrame.from_dict({}, columns=['user', 'channel', 'subscribed'], orient='index')
+	#out.to_csv(outpath+'/preds.csv', index=False)
 	
 	max_w = 300
 	embedding_d = 100

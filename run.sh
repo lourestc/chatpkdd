@@ -17,19 +17,20 @@ mkdir test_prepared
 mkdir $OUTPATH
 
 INNLINES=$(wc -l < "$INFILE")
-FLINES=100000
+FLINES=3
 NSPLITS=$(( ($INNLINES + ($FLINES - 1)) / $FLINES ))
 
 echo "Innlines:" $INNLINES
 echo "Flines:" $FLINES
 echo "Nsplits:" $NSPLITS
 
-for i in {0..$(($NSPLITS-1))}
+for ((i=0;i<NSPLITS;i++));
 do
 	FIRSTLINE=$(( 1+($i*$FLINES) ))
-	LASTLINE=$(( (1+$i)*$FLINES) ))
+	LASTLINE=$(( (1+$i)*$FLINES ))
 	STOPLINE=$(( $LASTLINE + 1 ))
-	sed -n '${FIRSTLINE},${LASTLINE}p;${STOPLINE}q' $INFILE > splitted/xaa
+	sed -n '${FIRSTLINE},${LASTLINE}p;${STOPLINE}q' $INFILE #> splitted/xaa
+	echo '...'
 	
 	#python prepare_data.py all "splitted" "test_prepared" False
 	

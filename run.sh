@@ -29,7 +29,7 @@ do
 	FIRSTLINE=$(( 1+($i*$FLINES) ))
 	LASTLINE=$(( (1+$i)*$FLINES ))
 	STOPLINE=$(( $LASTLINE + 1 ))
-	sed -n '${FIRSTLINE},${LASTLINE}p;${STOPLINE}q' $INFILE #> splitted/xaa
+	sed -n '$FIRSTLINE,$LASTLINE p;$STOPLINE q' $INFILE #> splitted/xaa
 	echo '...'
 	
 	#python prepare_data.py all "splitted" "test_prepared" False

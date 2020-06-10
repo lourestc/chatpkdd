@@ -17,7 +17,7 @@ mkdir test_prepared
 mkdir $OUTPATH
 
 INNLINES=$(wc -l < "$INFILE")
-FLINES=3
+FLINES=100000
 NSPLITS=$(( ($INNLINES + ($FLINES - 1)) / $FLINES ))
 
 echo "Innlines:" $INNLINES
@@ -29,8 +29,7 @@ do
 	FIRSTLINE=$(( 1+($i*$FLINES) ))
 	LASTLINE=$(( (1+$i)*$FLINES ))
 	STOPLINE=$(( $LASTLINE + 1 ))
-	sed -n "${FIRSTLINE},${LASTLINE}p;${STOPLINE}q" $INFILE #> splitted/xaa
-	echo '...'
+	sed -n "${FIRSTLINE},${LASTLINE}p;${STOPLINE}q" $INFILE > splitted/xaa
 	
 	#python prepare_data.py all "splitted" "test_prepared" False
 	

@@ -11,21 +11,35 @@ conda init
 rm -r splitted
 mkdir splitted
 
-FLINES=100000
-split -l $FLINES $INFILE splitted/
-# tail -n +2 $INFILE | split -l $FLINES - --filter='sh -c "{ head -n1 $INFILE; cat; } > $FILE"' "splitted/x"
-# head -$FLINES $INFILE > "splitted/xaa"
-
 rm -r test_prepared
 mkdir test_prepared
 
-python prepare_data.py all "splitted" "test_prepared" False
+mkdir $OUTPATH
 
-#INNLINES=$(wc -l < "$INFILE")
+INNLINES=$(wc -l < "$INFILE")
+FLINES=100000
+NSPLITS=$(( ($INNLINES + ($FLINES - 1)) / $FLINES ))
+
+echo "Innlines:" $INNLINES
+echo "Flines:" $FLINES
+echo "Nsplits:" $NSPLITS
+
+for i in {0..$(($NSPLITS-1))}
+do
+	FIRSTLINE=$(( 1+($i*$FLINES) ))
+	LASTLINE=$(( (1+$i)*$FLINES) ))
+	STOPLINE=$(( $LASTLINE + 1 ))
+	sed -n '${FIRSTLINE},${LASTLINE}p;${STOPLINE}q' $INFILE > splitted/xaa
+	
+	#python prepare_data.py all "splitted" "test_prepared" False
+	
+	#python batched_model.py test "test_prepared" $OUTPATH
+done
+
+
+#split -l $FLINES $INFILE splitted/
+# tail -n +2 $INFILE | split -l $FLINES - --filter='sh -c "{ head -n1 $INFILE; cat; } > $FILE"' "splitted/x"
+# head -$FLINES $INFILE > "splitted/xaa"
 
 #python run_LSTM.py hsearch "prepared" $OUTPATH $INNLINES
 #python batched_model.py train "prepared/train_split.csv" 20000000 "prepared/val_split.csv" 9539420
-
-mkdir $OUTPATH
-
-python batched_model.py test "test_prepared" $OUTPATH

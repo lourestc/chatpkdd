@@ -32,9 +32,9 @@ do
 	STOPLINE=$(( $LASTLINE + 1 ))
 	sed -n "${FIRSTLINE},${LASTLINE}p;${STOPLINE}q" $INFILE > splitted/xaa
 	
-	python prepare_data.py all "splitted" "test_prepared" False
+	python3 prepare_data.py all "splitted" "test_prepared" False
 	
-	python batched_model.py test "test_prepared" $OUTPATH
+	python3 batched_model.py test "test_prepared" $OUTPATH
 done
 
 

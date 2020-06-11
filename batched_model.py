@@ -297,7 +297,7 @@ def save_predictions( predictions, data, out_filename ):
 def test_simple( testpath, outpath, feature_list ):
 	
 	#out = pd.DataFrame.from_dict({}, columns=['user', 'channel', 'subscribed'], orient='index')
-	#out.to_csv(outpath+'/preds.csv', index=False)
+	#out.to_csv(outpath+'/predictions.csv', index=False)
 	
 	max_w = 300
 	embedding_d = 100
@@ -320,7 +320,7 @@ def test_simple( testpath, outpath, feature_list ):
 	for testfile in data_fnames(testpath):
 		test_data = read_data(testfile)
 		predictions = test_model_simple(model, tokenizer, max_w, test_data)
-		save_predictions( predictions, test_data, outpath+'/preds.csv' )
+		save_predictions( predictions, test_data, outpath+'/predictions.csv' )
 
 if __name__ == '__main__':
 	

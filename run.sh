@@ -1,22 +1,21 @@
 #!/bin/bash
 
-INFILE=$1 #"timestamps/train (2).csv"
-OUTPATH=$2 #"predictions/"
+INFILE=$1"/test.json"
+OUTPATH=$2
 
 CONDA_BASE=$(conda info --base)
 source ${CONDA_BASE}/etc/profile.d/conda.sh
 conda init
-#conda activate pkddchat
 
-rm -r splitted
+rm -rf splitted
 mkdir splitted
 
-rm -r test_prepared
+rm -rf test_prepared
 mkdir test_prepared
 
-mkdir $OUTPATH
+mkdir -p $OUTPATH
 
-echo 'user,channel,subscribed' > $OUTPATH'/preds.csv'
+echo 'user,channel,subscribed' > $OUTPATH'/predictions.csv'
 
 INNLINES=$(wc -l < "$INFILE")
 FLINES=10000

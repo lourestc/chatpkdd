@@ -3,9 +3,9 @@
 INFILE=$1"/test.json"
 OUTPATH=$2
 
-CONDA_BASE=$(conda info --base)
-source ${CONDA_BASE}/etc/profile.d/conda.sh
-conda init
+#CONDA_BASE=$(conda info --base)
+#source ${CONDA_BASE}/etc/profile.d/conda.sh
+#conda init
 
 rm -rf splitted
 mkdir splitted

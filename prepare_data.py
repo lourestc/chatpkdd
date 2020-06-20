@@ -120,7 +120,10 @@ if __name__ == '__main__':
 	include_gt = sys.argv[4]
 	
 	if include_gt=='True':
-		gt = read_ground_truth('../ChAT/train_truth.csv')
+		if len(sys.argv)>5:
+			gt = read_ground_truth(sys.argv[5])
+		else:
+			gt = read_ground_truth('../ChAT/train_truth.csv')
 	else:
 		gt = None
 	

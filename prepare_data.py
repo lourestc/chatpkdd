@@ -129,7 +129,7 @@ if __name__ == '__main__':
 		df = prepare_data_from_json(infile,gt)
 		df.to_csv(outpath+'/'+infile.stem+'.csv')
 	elif mode == 'file':
-		infile = inpath
+		infile = Path(inpath)
 		df = prepare_data_from_json(infile,gt)
 		df.to_csv(outpath+'/'+infile.stem+'.csv')
 	elif mode == 'all':

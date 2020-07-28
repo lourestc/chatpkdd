@@ -1,4 +1,4 @@
-from prepare_data import *
+from batched_model import *
 
 if __name__ == '__main__':
 

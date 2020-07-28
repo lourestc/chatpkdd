@@ -1,5 +1,6 @@
 from batched_model import *
 
+#python3 find_unknown_users.py train_prepared/train0000.csv test_prepared/test.csv test_prepared/test_kn.csv test_prepared/test_unkn.csv
 if __name__ == '__main__':
 
 	trainfile = sys.argv[1]

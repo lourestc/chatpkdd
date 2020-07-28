@@ -16,7 +16,6 @@ if __name__ == '__main__':
 	if field=='user':
 		test_df[test_df.user.isin(train_df.user)].to_csv(outtestfile1, index=False)
 		test_df[~test_df.user.isin(train_df.user)].to_csv(outtestfile2, index=False)
-	elif
-		field=='channel'
+	elif field=='channel':
 		test_df[test_df.channel.isin(train_df.channel)].to_csv(outtestfile1, index=False)
 		test_df[~test_df.channel.isin(train_df.channel)].to_csv(outtestfile2, index=False)

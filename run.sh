@@ -15,7 +15,7 @@ mkdir test_prepared
 
 mkdir -p $OUTPATH
 
-echo 'user,channel,subscribed' > $OUTPATH'/predictions.csv'
+#echo 'user,channel,subscribed' > $OUTPATH'/predictions.csv'
 
 INNLINES=$(wc -l < "$INFILE")
 FLINES=10000

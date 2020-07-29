@@ -292,7 +292,11 @@ def save_predictions( predictions, data, out_filename ):
 		odict[i] = [ data.loc[i,'user'], data.loc[i,'channel'], pred ]
 		
 	out = pd.DataFrame.from_dict(odict, columns=['user', 'channel', 'subscribed'], orient='index')
-	out.to_csv(out_filename, mode='a', header=False, index=False)
+	
+	if Path(out_filename).is_file():
+		out.to_csv(out_filename, mode='a', header=False, index=False)
+	else:
+		out.to_csv(out_filename, index=False)
 
 def test_simple( testpath, outpath, feature_list ):
 	

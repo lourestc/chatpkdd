@@ -10,8 +10,9 @@ if __name__ == '__main__':
 	outtestfile1 = sys.argv[4]
 	outtestfile2 = sys.argv[5]
 	
-	train_df = read_data(trainfile)
-	test_df = read_data(intestfile)
+	
+	train_df = pd.read_csv(trainfile)
+	test_df = pd.read_csv(intestfile)
 	
 	if field=='user':
 		test_df[test_df.user.isin(train_df.user)].to_csv(outtestfile1, index=False)

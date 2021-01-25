@@ -155,7 +155,7 @@ def remove_stopwords_line(concatenatedm):
 
 def extract_features_line(uc_features, concatenatedm, delta_ts, UStats, CStats):
 
-	dts = np.asarray(eval(delta_ts))
+	dts = np.asarray(delta_ts)
 	
 	uc_features.length_delta_ts = dts.size
 	uc_features.sum_delta_ts = np.sum(dts) if dts.size<=1 else np.sum(np.delete(dts,0))

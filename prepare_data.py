@@ -14,7 +14,7 @@ from string import punctuation
 import sys
 
 class UCFeatures:
-	def __init__():
+	def __init__(self):
 		self.user = None
 		self.channel = None
 		self.subscribed = None

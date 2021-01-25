@@ -13,6 +13,22 @@ from string import punctuation
 
 import sys
 
+class UCFeatures:
+	self.user = None
+	self.channel = None
+	self.subscribed = None
+	self.length_delta_ts = None
+	self.sum_delta_ts = None
+	self.average_delta_ts = None
+	self.std_delta_ts = None
+	self.min_delta_ts = None
+	self.max_delta_ts = None
+	self.length_concatenated_m = None
+	self.average_SizeMsgChannels_User = None
+	self.count_Channels_User = None
+	self.average_SizeMsgUsers_Channel = None
+	self.count_Users_Channel = None
+
 def data_fnames(folderpath='timestamps'):
 	train_path = Path(folderpath)
 	return [ fname for fname in train_path.glob('*') ]
@@ -112,6 +128,147 @@ def prepare_data_from_json(json_filename,gt):
 	
 	return dataframe
 	
+def base_process_json_line(uc_json, uc_features):
+	
+	uc_features.user = uc_json['user']
+	uc_features.channel = uc_json['channel']
+	
+	messages = sorted( uc_json['ms'], key=lambda m:m['t'] )
+	concatenatedm = ' '.join([ m['m'] for m in messages ])
+	
+	ts_list = [ m['t'] for m in messages ]
+	delta_ts = [0]+[ ts2-ts1 for ts1,ts2 in zip(ts_list[:-1],ts_list[1:]) ]
+	
+	return concatenatedm, delta_ts
+
+def remove_stopwords_line(concatenatedm):
+	stoplist =  stopwords.words('english')
+	punc = set(punctuation)
+	s = concatenatedm
+	if str(s) != "nan":
+		text_tokens = word_tokenize(s)
+		tokens_without_sw = [word for word in text_tokens if not word in stoplist]
+		s = ''.join(w if set(w) <= punc else ' '+w+' ' for w in tokens_without_sw)
+		s = ' '.join(s.split())
+	return s
+
+def extract_features_line(uc_features, concatenatedm, delta_ts, UStats, CStats):
+
+	dts = np.asarray(eval(delta_ts))
+	
+	uc_features.length_delta_ts = dts.size
+	uc_features.sum_delta_ts = np.sum(dts) if dts.size<=1 else np.sum(np.delete(dts,0))
+	uc_features.average_delta_ts = np.mean(dts) if dts.size<=1 else np.mean(np.delete(dts,0))
+	uc_features.std_delta_ts = np.std(dts) if dts.size<=1 else np.std(np.delete(dts,0))
+	uc_features.min_delta_ts = np.amin(dts) if dts.size<=1 else np.amin(np.delete(dts,0))
+	uc_features.max_delta_ts = np.amax(dts) if dts.size<=1 else np.amax(np.delete(dts,0))
+	uc_features.length_concatenated_m = len(concatenatedm.split())
+	
+	UStats[uc_features.user] = UStats.get(uc_features.user, {'grouped_length_concatenated_m':0, 'grouped_length_delta_ts':0, 'count':0})
+	UStats[uc_features.user]['grouped_length_concatenated_m'] += uc_features.length_concatenated_m
+	UStats[uc_features.user]['grouped_length_delta_ts'] += uc_features.length_delta_ts
+	UStats[uc_features.user]['count'] += 1
+	
+	CStats[uc_features.channel] = CStats.get(uc_features.channel, {'grouped_length_concatenated_m':0, 'grouped_length_delta_ts':0, 'count':0})
+	CStats[uc_features.channel]['grouped_length_concatenated_m'] += uc_features.length_concatenated_m
+	CStats[uc_features.channel]['grouped_length_delta_ts'] += uc_features.length_delta_ts
+	CStats[uc_features.channel]['count'] += 1
+
+def extract_features_grouped(UserChannels, UStats, CStats):
+
+	for uc_features in UserChannels:
+		uc_features.average_SizeMsgChannels_User = UStats[uc_features.user]['grouped_length_concatenated_m'] / UStats[uc_features.user]['count']
+		uc_features.count_Channels_User = UStats[uc_features.user]['count']
+		uc_features.average_SizeMsgUsers_Channel = CStats[uc_features.channel]['grouped_length_concatenated_m'] / CStats[uc_features.channel]['count']
+		uc_features.count_Users_Channel = CStats[uc_features.channel]['count']
+
+def iterative_prepare_data_from_json(json_filename):
+	
+	UserChannels = list()
+	UStats = dict()
+	CStats = dict()
+	
+	with open(json_filename, 'r') as f:
+		for line in f:
+			uc_json = json.loads(line)
+			uc_features = UCFeatures()
+			
+			concatenatedm, delta_ts = base_process_json_line(uc_json, uc_features)
+			concatenatedm = remove_stopwords_line(concatenatedm)
+			
+			extract_features_line(uc_features, concatenatedm, delta_ts, UStats, CStats)
+			
+			UserChannels.append(uc_features)
+	
+	extract_features_grouped(UserChannels, UStats, CStats)
+	
+	for uc_features in UserChannels:
+		if uc_features.average_SizeMsgChannels_User == None:
+			print("OPS")
+			return
+	
+	return UserChannels
+	
+def write_csv_dataframe(json_filename, UserChannels, ground_truth, csv_filename):
+	
+	with open(csv_filename, 'w') as f2:	
+		
+		f2.write(',channel,user,concatenated_m,delta_ts,subscribed,length(delta_ts),sum(delta_ts),average(delta_ts),std(delta_ts),min(delta_ts),max(delta_ts),length(concatenated_m),average(SizeMsgChannels_User),count(Channels_User),average(SizeMsgUsers_Channel),count(Users_Channel)\n' )
+		
+		with open(json_filename, 'r') as f:
+			cont = 0 
+			for line in f:
+				uc_json = json.loads(line)
+				uc_features = UCFeatures()
+				
+				concatenatedm, delta_ts = base_process_json_line(uc_json, uc_features)
+				concatenatedm = remove_stopwords_line(concatenatedm)
+				
+				if ground_truth:
+					subscribed = ground_truth[uc_features.channel][uc_features.user]
+					print_line = [
+						cont,
+						uc_features.channel,
+						uc_features.user,
+						concatenatedm,
+						delta_ts,
+						subscribed,
+						uc_features.length_delta_ts,
+						uc_features.sum_delta_ts,
+						uc_features.average_delta_ts,
+						uc_features.std_delta_ts,
+						uc_features.min_delta_ts,
+						uc_features.max_delta_ts,
+						uc_features.length_concatenated_m,
+						uc_features.average_SizeMsgChannels_User,
+						uc_features.count_Channels_User,
+						uc_features.average_SizeMsgUsers_Channel,
+						uc_features.count_Users_Channel
+						]
+					cont += 1
+				else:
+					print_line = [
+						cont,
+						uc_features.channel,
+						uc_features.user,
+						concatenatedm,
+						delta_ts,
+						uc_features.length_delta_ts,
+						uc_features.sum_delta_ts,
+						uc_features.average_delta_ts,
+						uc_features.std_delta_ts,
+						uc_features.min_delta_ts,
+						uc_features.max_delta_ts,
+						uc_features.length_concatenated_m,
+						uc_features.average_SizeMsgChannels_User,
+						uc_features.count_Channels_User,
+						uc_features.average_SizeMsgUsers_Channel,
+						uc_features.count_Users_Channel
+						]
+					cont += 1
+					
+				f2.write( ','.join(feature for feature in print_line) + '\n' )
+
 if __name__ == '__main__':
 
 	mode = sys.argv[1]
@@ -139,6 +296,10 @@ if __name__ == '__main__':
 		for infile in data_fnames(inpath):
 			df = prepare_data_from_json(infile,gt)
 			df.to_csv(outpath+'/'+infile.stem+'.csv')
+	elif mode == 'iterate':
+		infile = Path(inpath)
+		UserChannels = iterative_prepare_data_from_json(infile)
+		write_csv_dataframe(json_filename, UserChannels, gt, outpath+'/'+infile.stem+'.csv')
 	else:
 		print("ERROR: invalid mode.")
 		sys.exit(1)

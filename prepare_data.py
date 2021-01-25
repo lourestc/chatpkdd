@@ -220,10 +220,15 @@ def write_csv_dataframe(json_filename, UserChannels, ground_truth, csv_filename)
 			cont = 0 
 			for line in f:
 				uc_json = json.loads(line)
-				uc_features = UCFeatures()
+				uc = UCFeatures()
 				
-				concatenatedm, delta_ts = base_process_json_line(uc_json, uc_features)
+				concatenatedm, delta_ts = base_process_json_line(uc_json, uc)
 				concatenatedm = remove_stopwords_line(concatenatedm)
+				
+				uc_features = UserChannels[cont]
+				if uc.user != uc_features.user or uc.channel != uc_features.channel:
+					print("OOOOP")
+					return
 				
 				if ground_truth:
 					subscribed = ground_truth[uc_features.channel][uc_features.user]

@@ -131,8 +131,8 @@ def prepare_data_from_json(json_filename,gt):
 	
 def base_process_json_line(uc_json, uc_features):
 	
-	uc_features.user = uc_json['user']
-	uc_features.channel = uc_json['channel']
+	uc_features.user = uc_json['u']
+	uc_features.channel = uc_json['c']
 	
 	messages = sorted( uc_json['ms'], key=lambda m:m['t'] )
 	concatenatedm = ' '.join([ m['m'] for m in messages ])

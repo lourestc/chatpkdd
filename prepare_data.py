@@ -14,20 +14,21 @@ from string import punctuation
 import sys
 
 class UCFeatures:
-	self.user = None
-	self.channel = None
-	self.subscribed = None
-	self.length_delta_ts = None
-	self.sum_delta_ts = None
-	self.average_delta_ts = None
-	self.std_delta_ts = None
-	self.min_delta_ts = None
-	self.max_delta_ts = None
-	self.length_concatenated_m = None
-	self.average_SizeMsgChannels_User = None
-	self.count_Channels_User = None
-	self.average_SizeMsgUsers_Channel = None
-	self.count_Users_Channel = None
+	def __init__():
+		self.user = None
+		self.channel = None
+		self.subscribed = None
+		self.length_delta_ts = None
+		self.sum_delta_ts = None
+		self.average_delta_ts = None
+		self.std_delta_ts = None
+		self.min_delta_ts = None
+		self.max_delta_ts = None
+		self.length_concatenated_m = None
+		self.average_SizeMsgChannels_User = None
+		self.count_Channels_User = None
+		self.average_SizeMsgUsers_Channel = None
+		self.count_Users_Channel = None
 
 def data_fnames(folderpath='timestamps'):
 	train_path = Path(folderpath)

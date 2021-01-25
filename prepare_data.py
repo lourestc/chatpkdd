@@ -300,7 +300,7 @@ if __name__ == '__main__':
 	elif mode == 'iterate':
 		infile = Path(inpath)
 		UserChannels = iterative_prepare_data_from_json(infile)
-		write_csv_dataframe(json_filename, UserChannels, gt, outpath+'/'+infile.stem+'.csv')
+		write_csv_dataframe(infile, UserChannels, gt, outpath+'/'+infile.stem+'.csv')
 	else:
 		print("ERROR: invalid mode.")
 		sys.exit(1)

@@ -268,7 +268,7 @@ def write_csv_dataframe(json_filename, UserChannels, ground_truth, csv_filename)
 						]
 					cont += 1
 					
-				f2.write( ','.join(feature for feature in print_line) + '\n' )
+				f2.write( ','.join(str(feature) for feature in print_line) + '\n' )
 
 if __name__ == '__main__':
 

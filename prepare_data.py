@@ -212,9 +212,12 @@ def iterative_prepare_data_from_json(json_filename):
 	
 def write_csv_dataframe(json_filename, UserChannels, ground_truth, csv_filename):
 	
-	with open(csv_filename, 'w') as f2:	
+	with open(csv_filename, 'w', newline='') as f2:	
 		
-		f2.write(',channel,user,concatenated_m,delta_ts,subscribed,length(delta_ts),sum(delta_ts),average(delta_ts),std(delta_ts),min(delta_ts),max(delta_ts),length(concatenated_m),average(SizeMsgChannels_User),count(Channels_User),average(SizeMsgUsers_Channel),count(Users_Channel)\n' )
+		#f2.write(',channel,user,concatenated_m,delta_ts,subscribed,length(delta_ts),sum(delta_ts),average(delta_ts),std(delta_ts),min(delta_ts),max(delta_ts),length(concatenated_m),average(SizeMsgChannels_User),count(Channels_User),average(SizeMsgUsers_Channel),count(Users_Channel)\n' )
+		
+		csvwriter = csv.writer(f2)
+		csvwriter.writerow([ '', 'channel', 'user', 'concatenated_m', 'delta_ts', 'subscribed', 'length(delta_ts)', 'sum(delta_ts)', 'average(delta_ts)', 'std(delta_ts)', 'min(delta_ts)', 'max(delta_ts)', 'length(concatenated_m)', 'average(SizeMsgChannels_User)', 'count(Channels_User)', 'average(SizeMsgUsers_Channel)', 'count(Users_Channel)' ])
 		
 		with open(json_filename, 'r') as f:
 			cont = 0 
@@ -273,7 +276,8 @@ def write_csv_dataframe(json_filename, UserChannels, ground_truth, csv_filename)
 						]
 					cont += 1
 					
-				f2.write( ','.join(str(feature) for feature in print_line) + '\n' )
+				#f2.write( ','.join(str(feature) for feature in print_line) + '\n' )
+				csvwriter.writerow( print_line )
 
 if __name__ == '__main__':
 
